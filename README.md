@@ -8,7 +8,7 @@ Displays the % chance of a win for each time which updates during a game based o
 ## Features
 - Works in Casual, Competitive and Tournaments
 - Displays if you are favorites or the underdogs throughout the game
-- Displays the win chance of each time throughout the game
+- Displays the win chance of each team throughout the game (updated on each goal)
 - Displays the 'Star Player' _(Player with the highest MMR)_
 
 ## Versions
