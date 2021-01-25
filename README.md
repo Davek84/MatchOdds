@@ -1,7 +1,7 @@
 # MatchOdds - BakkesMod Rocket League Plugin
 ## About
 An easy way to see if you are the favorites or the underdogs for a match.
-Displays the % chance of a win for each time which updates during a game based on team MMR, score & time remaining.
+Displays the % chance of a win for each team (Updates throughout the game based on team MMR, score & time remaining)
 
 ![MatchOdds Screenshot!](https://i.imgur.com/vHwlB0i.jpeg "MatchOdds Screenshot")
 
