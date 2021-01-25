@@ -341,20 +341,19 @@ void matchodds::Render(CanvasWrapper canvas)
 			canvas.SetPosition(imagePosTeam0);
 			canvas.DrawTexture(dice.get(), 0.05f); // Draw the 'dice' image to the screen
 			canvas.SetPosition(textPosTeam0);
-			if (LocalTeam123 == 0) tmpPercentage = static_cast<float>(GetTeamTotal(1) / static_cast<float>(TotalMMR));
+			if (LocalTeam123 == 0) tmpPercentage = static_cast<float>(GetTeamTotal(1) / static_cast<float>(TotalMMR)); // Check what team you're on and then render the correct % on the correct side of the scoreboard
 			if (LocalTeam123 == 1) tmpPercentage = static_cast<float>(GetTeamTotal(2) / static_cast<float>(TotalMMR));
 			tmpPercentage2 = static_cast<int>(ceil(tmpPercentage * 100)); // Turn in to a % and round up, this avoids the weirdness of a 49% v 50% prediction...
 
-			canvas.DrawString(std::to_string(tmpPercentage2) + "%", 1.9, 1.9, 0);
+			canvas.DrawString(std::to_string(tmpPercentage2) + "%", 1.9, 1.9, 0); // Draw the %
 
-			canvas.SetColor(LinearColor{ 255, 255, 255, 255 });
 			canvas.SetPosition(imagePosTeam1);
 			canvas.DrawTexture(dice.get(), 0.05f);
 			canvas.SetPosition(textPosTeam1);
 
 			if (LocalTeam123 == 0) tmpPercentage = static_cast<float>(GetTeamTotal(2) / static_cast<float>(TotalMMR));
 			if (LocalTeam123 == 1) tmpPercentage = static_cast<float>(GetTeamTotal(1) / static_cast<float>(TotalMMR));
-			tmpPercentage2 = tmpPercentage * 100;
+			tmpPercentage2 = static_cast<int>(ceil(tmpPercentage * 100)); // Turn in to a % and round up, this avoids the weirdness of a 49% v 50% prediction...
 
 			canvas.DrawString(std::to_string(tmpPercentage2) + "%", 1.9, 1.9, 0);
 		}
