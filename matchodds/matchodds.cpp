@@ -104,12 +104,62 @@ void matchodds::statTickerEvent(ServerWrapper caller, void* args) {
 	//if (EventName == "Goal") UpdateTeamTotalExtras(receiver.GetTeamNum() + 1, 200); //Goal Scored, give + 200 MMR
 	if (EventName == "Goal") {
 		//cvarManager->log("Event: " + EventName + " Team: " + std::to_string(receiver.GetTeamNum()));
-		CalculateStats("FromStats");
+		CalculateStats("Goal");
+
+	} else { // TODO: Find a less hacky way of updating the stats during the game...
+		
+		GetCurrentScore();
+		UpdateTeamTotal(); 
+		GetCommentry();
 	}
 
     
 
 
+}
+void::matchodds::GetCommentry() {
+	Commentry = "";
+	if (PlayerMMRCaptured == PlayerCount) { // Do we have MMR for all players?
+
+		if (LocalTeam123 == 0) {
+			if (GetTeamTotal(1) > GetTeamTotal(2)) {
+				CommentryColour = { 150,200,150,255 }; // Green?
+				Commentry = "You are the favourites!";
+			}
+			else {
+				CommentryColour = { 200,150,150,255 }; // Orange?
+				Commentry = "You are the underdogs... ";
+			}
+		}
+		else {
+			if (GetTeamTotal(2) > GetTeamTotal(1)) {
+				CommentryColour = { 150,200,150,255 }; // Green?
+				Commentry = "You are the favourites!";
+			}
+			else {
+				CommentryColour = { 200,150,150,255 }; // Orange?
+				Commentry = "You are the underdogs...";
+			}
+		}
+		if (getGameTime() > 240) {
+			switch (1) { // Make commentry a little more 'dynamic'
+			case 1: Commentry = Commentry + " Star Player: " + tmpHighestMMRName; break;
+				//case 2: tmpCommentry = tmpString + " One to watch: " + tmpHighestMMRName; break;
+				//case 3: tmpCommentry = tmpString + " Top Rated: " + tmpHighestMMRName; break;
+			}
+		}
+		else if (getGameTime() > 120 && getGameTime() < 241) {
+			//Commentry = tmpString;
+		}
+		else {
+			//Commentry = tmpString;
+		}
+
+	}
+	else {
+		Commentry = "Calculating predictions...";
+	}
+	if (isMatchEnded == true) Commentry = "..."; // TODO: Actually identify when user is on the post match screen
 }
 void matchodds::UpdateTeamTotalExtras(int TeamNumber, int Amount) {
 	TeamTotalExtras[TeamNumber] += Amount;
@@ -150,9 +200,9 @@ void matchodds::GetCurrentScore() {
 	//cvarManager->log("TExtras1: " + std::to_string(TeamTotalExtras[1]) + " TExtras2: " + std::to_string(TeamTotalExtras[2]));
 }
 
-void matchodds::UpdateTeamTotal(int Team1, int Team2) {
-	TeamTotal[1] = Team1 + TeamTotalExtras[1];
-	TeamTotal[2] = Team2 + TeamTotalExtras[2];
+void matchodds::UpdateTeamTotal() {
+	TeamTotal[1] = TeamBaselineMMR[1] + TeamTotalExtras[1];
+	TeamTotal[2] = TeamBaselineMMR[2] + TeamTotalExtras[2];
 	UpdateTotalMMR(TeamTotal[1], TeamTotal[2]);
 	//cvarManager->log("UpdateTeamTotal:  " + std::to_string(Team1) + " | " + std::to_string(Team2));
 	//cvarManager->log("UpdateTeamTotal:  " + std::to_string(TeamTotal[0]) + " | " + std::to_string(TeamTotal[1]));
@@ -247,19 +297,21 @@ void matchodds::CalculateStats(std::string eventName)
 					tmpTeamTotal[1] += tmpMMR;
 				}
 			}
-
+			TeamBaselineMMR[1] = tmpTeamTotal[0];
+			TeamBaselineMMR[2] = tmpTeamTotal[1];
 			// Keep track of highest MMR player (Star Player)
 			if (tmpMMR >= tmpHighestMMR)
 			{
-				tmpHighestMMR = tmpMMR;
-				tmpHighestMMRName = playerName;
+				tmpHighestMMR = tmpMMR; // # of MMR the player has
+				tmpHighestMMRName = playerName; // The name of the player
 			}
 			
 		//}
 
 	}
 	GetCurrentScore();
-	UpdateTeamTotal(tmpTeamTotal[0], tmpTeamTotal[1]);
+	UpdateTeamTotal();
+	GetCommentry();
 
 }
 
@@ -303,7 +355,7 @@ PriWrapper matchodds::GetLocalPlayerPRI()
 	return player.GetPRI();
 }
 
-void matchodds::LoadImgs()
+void matchodds::LoadImgs() // Load up the images used to display ingame
 {
 	//TODO: Make this less hacky
 	std::wstring tmpWide(gameWrapper->GetDataFolderW());
@@ -322,8 +374,8 @@ void matchodds::LoadImgs()
 
 void matchodds::Render(CanvasWrapper canvas)
 {
-	if (!(*bEnabled)) return; // Don't display if the plugin is disabled
-	if (gameWrapper->IsInGame() == 1 || gameWrapper->IsInOnlineGame() == 1) { //Display if user is in an online game (Casual, Ranked, Tournament)
+	if (!(*bEnabled)) return; // Don't display if the plugin is disabled...
+	if (gameWrapper->IsInGame() == 1 || gameWrapper->IsInOnlineGame() == 1 || gameWrapper->IsInReplay() == 1) { //Display if user is in an online game (Casual, Ranked, Tournament)
 		if (tmpHighestMMRName == "") return; //Only render if we have some MMR data
 		float tmpPercentage = 0;
 		int tmpPercentage2;
@@ -353,65 +405,26 @@ void matchodds::Render(CanvasWrapper canvas)
 
 			if (LocalTeam123 == 0) tmpPercentage = static_cast<float>(GetTeamTotal(2) / static_cast<float>(TotalMMR));
 			if (LocalTeam123 == 1) tmpPercentage = static_cast<float>(GetTeamTotal(1) / static_cast<float>(TotalMMR));
-			tmpPercentage2 = static_cast<int>(ceil(tmpPercentage * 100)); // Turn in to a % and round up, this avoids the weirdness of a 49% v 50% prediction...
+			tmpPercentage2 = static_cast<int>(floor(tmpPercentage * 100)); // Turn in to a % and round up, this avoids the weirdness of a 49% v 50% prediction...
 
 			canvas.DrawString(std::to_string(tmpPercentage2) + "%", 1.9, 1.9, 0);
 		}
 
-		//TODO: Move commentary to seperate function, doesn't need to run this code every frame...
+		//TODO: Move commentary to seperate function, doesn't need to run this code every frame as it doesn't change too often...
+		//TODO: Add more strings and be much more dynamic before, during and after a game. (i.e. "Well done, I had you down as underdogs but you prooved me wrong!")
 		std::string tmpString;
-		LinearColor tmpColour{ 255, 255, 255, 255 }; // White
-		if (PlayerMMRCaptured == PlayerCount) { // Do we have MMR for all players?
-
-			if (LocalTeam123 == 0) {
-				if (GetTeamTotal(1) > GetTeamTotal(2)) {
-					tmpColour = { 150,200,150,255 }; // Green?
-					tmpString = "You are the favourites!";
-				}
-				else {
-					tmpColour = { 200,150,150,255 }; // Orange?
-					tmpString = "You are the underdogs... ";
-				}
-			}
-			else {
-				if (GetTeamTotal(2) > GetTeamTotal(1)) {
-					tmpColour = { 150,200,150,255 }; // Green?
-					tmpString = "You are the favourites!";
-				}
-				else {
-					tmpColour = { 200,150,150,255 }; // Orange?
-					tmpString = "You are the underdogs...";
-				}
-			}
-			if (getGameTime() > 240) {
-				switch (1) {
-					case 1: tmpCommentry = tmpString + " Star Player: " + tmpHighestMMRName; break;
-					//case 2: tmpCommentry = tmpString + " One to watch: " + tmpHighestMMRName; break;
-					//case 3: tmpCommentry = tmpString + " Top Rated: " + tmpHighestMMRName; break;
-				}
-			}
-			else if (getGameTime() > 120 && getGameTime() < 241) {
-				tmpCommentry = tmpString;
-			} else {
-				tmpCommentry = tmpString;
-			}
-			
-		}
-		else {
-			tmpCommentry = "Calculating predictions...";
-		}
-		if (isMatchEnded == true) tmpCommentry = "...";
+		LinearColor tmpColour = { 255, 255, 255, 255 }; // White
 
 		int tmpCommentatorYPos = 90;
 		if (isMatchEnded == true) tmpCommentatorYPos = 10;
-		Vector2 imagePosCommentator = { (canvas.GetSize().X / 2) - 150 - (tmpCommentry.length() * 4), tmpCommentatorYPos };
-		Vector2 textPosCommentator = { (canvas.GetSize().X / 2) - 75 - (tmpCommentry.length() * 4), tmpCommentatorYPos + 15 };
+		Vector2 imagePosCommentator = { (canvas.GetSize().X / 2) - 150 - (Commentry.length() * 4), tmpCommentatorYPos };
+		Vector2 textPosCommentator = { (canvas.GetSize().X / 2) - 75 - (Commentry.length() * 4), tmpCommentatorYPos + 15 };
 		
 		
-		canvas.SetColor(tmpColour);
+		canvas.SetColor(CommentryColour);
 		canvas.SetPosition(textPosCommentator);
-		canvas.DrawString("\"" + tmpCommentry + "\"", 1.9, 1.9, 1);
-		tmpColour = { 255, 255, 255, 255 };
+		canvas.DrawString("\"" + Commentry + "\"", 1.9, 1.9, 1);
+		tmpColour = { 255, 255, 255, 255 }; // White
 		canvas.SetColor(tmpColour);
 		canvas.SetPosition(imagePosCommentator);
 		canvas.DrawTexture(commentator.get(), 0.10f);

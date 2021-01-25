@@ -12,6 +12,7 @@ private:
 	int TeamTotal[3] = { };
 	int TeamTotalExtras[3] = { };
 	int TeamScore[3] = { };
+	int TeamBaselineMMR[3] = { };
 	int TotalMMR = 0;
 	int PlayerCount = 0;
 	int PlayerMMRCaptured = 0;
@@ -30,6 +31,8 @@ private:
 	bool isMatchEnded;
 	bool isMatchStarted;
 	int initialRand = 1;
+	std::string Commentry = "";
+	LinearColor CommentryColour = { 255, 255, 255, 255 }; // White
 
 public:
 	int getGameTime();
@@ -50,10 +53,10 @@ public:
 	void CalculateStats(std::string eventName);
 	void MatchUnload(std::string eventName);
 	void Render(CanvasWrapper canvas);
-	void UpdateTeamTotal(int Team1, int Team2);
+	void UpdateTeamTotal();
 	void UpdateTotalMMR(int Team1, int Team2);
 	int GetTeamTotal(int TeamNumber);
-
+	void GetCommentry();
 
 	ServerWrapper GetCurrentServer();
 	PriWrapper GetLocalPlayerPRI();
