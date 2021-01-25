@@ -1,2 +1,2 @@
-# MatchOdds
-BakkesMod Plugin for Rocket League
+# matchodds
+Shows the Average MMR of the 2 teams

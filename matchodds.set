@@ -1,0 +1,12 @@
+Goal Speed Anywhere
+
+1|Enable|GSA_Enable
+7|
+1|Drop Shadow|GSA_Shadow
+
+4|Text visibility duration|GSA_Duration|0|10
+
+5|X Position|GSA_X_Position|0|1920
+5|Y Position|GSA_Y_Position|0|1080
+
+13|Text Color|GSA_Color
