@@ -87,9 +87,9 @@ struct TickerStruct {
 
 void matchodds::statTickerEvent(ServerWrapper caller, void* args) {
 	auto tArgs = (TickerStruct*)args;
-	cvarManager->log("stat ticker event!");
+	
 	if (!gameWrapper->IsInOnlineGame()) {
-		cvarManager->log("not in online game");
+		//cvarManager->log("not in online game");
 		return;
 	}
 
@@ -322,28 +322,28 @@ void matchodds::LoadImgs()
 
 void matchodds::Render(CanvasWrapper canvas)
 {
-
-	if (gameWrapper->IsInGame() == 1 || gameWrapper->IsInOnlineGame() == 1) {
-		if (tmpHighestMMRName == "") return;
+	if (!(*bEnabled)) return; // Don't display if the plugin is disabled
+	if (gameWrapper->IsInGame() == 1 || gameWrapper->IsInOnlineGame() == 1) { //Display if user is in an online game (Casual, Ranked, Tournament)
+		if (tmpHighestMMRName == "") return; //Only render if we have some MMR data
 		float tmpPercentage = 0;
 		int tmpPercentage2;
 		std::string tmpCommentry;
 		std::string tmpDebugString;
 
 		if (isMatchEnded == false) { // Render Win %
-			Vector2 imagePosTeam0 = { (canvas.GetSize().X / 2) - 320, 15 };
+			Vector2 imagePosTeam0 = { (canvas.GetSize().X / 2) - 320, 15 }; // Position for the 'dice' image next to the scoreboard
 			Vector2 imagePosTeam1 = { (canvas.GetSize().X / 2) + 260, 15 };
 
-			Vector2 textPosTeam0 = { (canvas.GetSize().X / 2) - 250, 30 };
+			Vector2 textPosTeam0 = { (canvas.GetSize().X / 2) - 250, 30 }; // Position for the '%' figure next to the scoreboard
 			Vector2 textPosTeam1 = { (canvas.GetSize().X / 2) + 200, 30 };
 
-			canvas.SetColor(LinearColor{ 255, 255, 255, 255 });
+			canvas.SetColor(LinearColor{ 255, 255, 255, 255 }); // White
 			canvas.SetPosition(imagePosTeam0);
-			canvas.DrawTexture(dice.get(), 0.05f);
+			canvas.DrawTexture(dice.get(), 0.05f); // Draw the 'dice' image to the screen
 			canvas.SetPosition(textPosTeam0);
 			if (LocalTeam123 == 0) tmpPercentage = static_cast<float>(GetTeamTotal(1) / static_cast<float>(TotalMMR));
 			if (LocalTeam123 == 1) tmpPercentage = static_cast<float>(GetTeamTotal(2) / static_cast<float>(TotalMMR));
-			tmpPercentage2 = tmpPercentage * 100;
+			tmpPercentage2 = static_cast<int>(ceil(tmpPercentage * 100)); // Turn in to a % and round up, this avoids the weirdness of a 49% v 50% prediction...
 
 			canvas.DrawString(std::to_string(tmpPercentage2) + "%", 1.9, 1.9, 0);
 
@@ -362,7 +362,7 @@ void matchodds::Render(CanvasWrapper canvas)
 		//TODO: Move commentary to seperate function, doesn't need to run this code every frame...
 		std::string tmpString;
 		LinearColor tmpColour{ 255, 255, 255, 255 }; // White
-		if (PlayerMMRCaptured == PlayerCount) { // We have MMR for all players
+		if (PlayerMMRCaptured == PlayerCount) { // Do we have MMR for all players?
 
 			if (LocalTeam123 == 0) {
 				if (GetTeamTotal(1) > GetTeamTotal(2)) {
