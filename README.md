@@ -1,2 +1,18 @@
-# matchodds
-Shows the Average MMR of the 2 teams
+# MatchOdds - BakkesMod Rocket League Plugin
+## About
+An easy way to see if you are the favorites or the underdogs for a match.
+Displays the % chance of a win for each time which updates during a game based on team MMR, score & time remaining.
+
+![MatchOdds Screenshot!](https://i.imgur.com/vHwlB0i.jpeg "MatchOdds Screenshot")
+
+## Features
+- Works in Casual, Competitive and Tournaments
+- Displays if you are favorites or the underdogs throughout the game
+- Displays the win chance of each time throughout the game
+- Displays the 'Star Player' _(Player with the highest MMR)_
+
+## Versions
+1.0 - Initial launch, probably bugs!
+
+## Contact
+Any issues find me on Discord: Civilian360#9819
