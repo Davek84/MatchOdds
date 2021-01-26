@@ -16,23 +16,38 @@ private:
 	int TotalMMR = 0;
 	int PlayerCount = 0;
 	int PlayerMMRCaptured = 0;
-	//int TeamAverage[3] = { };
+
 	std::string TeamName[1] = {};
 	long LocalTeam123 = 0;
-	long LocalTeam1233 = 0;
-	long LocalTeam1234 = 0;
 	long tmpHighestMMR;
-	std::string tmpHighestMMRName;
+	std::string StarPlayerName;
+	std::string MVPPlayerName;
 	UniqueIDWrapper uniqueID;
 	bool drawCanvas, isEnabled, gotNewMMR, isPlacement;
 	int userPlaylist, userDiv, userTier, upperTier, lowerTier, upperDiv, lowerDiv, nextLower, beforeUpper;
 	float userMMR = 0;
 	std::string nameCurrent, nameNext, nameBefore, nextDiff, beforeDiff;
-	bool isMatchEnded;
-	bool isMatchStarted;
+	bool isMatchEnded = true;
+	bool isRoundStarted = false;
+	bool isOvertime = false;
 	int initialRand = 1;
-	std::string Commentry = "";
-	LinearColor CommentryColour = { 255, 255, 255, 255 }; // White
+	std::string Commentary = "";
+	LinearColor CommentaryColour = { 255, 255, 255, 255 }; // White
+	int GoalDifference = 0;
+	int WinningTeam = 0;
+	bool isPredictedFavourite = false;
+	int lastGoalScoredBy = 0;
+	enum  MatchStates
+	{
+		s_PreMatch,
+		s_InMatch,
+		s_GoalReplay,
+		s_PostGoalCountdown,
+		s_MatchEnd,
+		s_MatchEndReplay,
+		s_Overtime,
+	};
+	MatchStates MatchState;
 
 public:
 	int getGameTime();
@@ -44,6 +59,12 @@ public:
 	void statTickerEvent(ServerWrapper caller, void* args);
 	void MatchEnded(std::string eventName);
 	void MatchStarted(std::string eventName);
+	void doesItTrigger(std::string eventName);
+	void EndGameHighlights(std::string eventName);
+	void RoundEnded(std::string eventName);
+	void RoundStarted(std::string eventName);
+	void GameUpdated(std::string eventName);
+	void itsOvertime(std::string eventName);
 	void LoadImgs();
 	std::shared_ptr<ImageWrapper> star;
 	std::shared_ptr<ImageWrapper> dice;
@@ -56,7 +77,7 @@ public:
 	void UpdateTeamTotal();
 	void UpdateTotalMMR(int Team1, int Team2);
 	int GetTeamTotal(int TeamNumber);
-	void GetCommentry();
+	void GetCommentary(std::string eventName = "");
 
 	ServerWrapper GetCurrentServer();
 	PriWrapper GetLocalPlayerPRI();
