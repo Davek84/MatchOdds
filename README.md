@@ -10,9 +10,11 @@
 - Displays if you are favorites or the underdogs throughout the game
 - Displays the win chance of each team throughout the game (updated on each goal)
 - Displays the 'Star Player' _(Player with the highest MMR)_
+- Dynamic Commentary based on how your team is performing
 
 ## Versions
-1.0 - Initial launch, probably bugs!
+ - 1.1 - Commentary overhaul
+ - 1.0 - Initial launch, probably bugs!
 
 ## Contact
 Any issues find me on Discord: Civilian360#9819
