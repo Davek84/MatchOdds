@@ -51,6 +51,7 @@ private:
 
 public:
 	int getGameTime();
+	int getMaxGameTime();
 	int getGameTimeElapsed();
 	void GetCurrentScore();
 	void onLoad() override;

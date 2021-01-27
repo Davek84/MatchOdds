@@ -168,43 +168,43 @@ void::matchodds::GetCommentary(std::string eventName) {
 				isFavourite = false;
 			}
 		}
-		if (getGameTime() > 290) {
+		if (getGameTime() > (getMaxGameTime() - 10)) { // Very Start of the game so store the predicted favourites
 
 			isPredictedFavourite = isFavourite; // Store the predicted favourite somewhere
-			if (isFavourite == true) Commentary = "You are the favourites!  Star Player: " + StarPlayerName;
+			if (isFavourite == true) Commentary = "You are the favorites!  Star Player: " + StarPlayerName;
 			if (isFavourite == false) Commentary = "You are the underdogs...  Star Player: " + StarPlayerName;
 		}
-		else if (getGameTime() > 260 && getGameTime() < 291) {
-			if (isFavourite && isPredictedFavourite) Commentary = "You are the favourites!  One to watch: " + StarPlayerName;
+		else if (getGameTime() > 260 && getGameTime() < 291) { // Start of game (if it's the standard 5 min match)
+			if (isFavourite && isPredictedFavourite) Commentary = "You are the favorites!  One to watch: " + StarPlayerName;
 			if (!isFavourite && isPredictedFavourite) Commentary = "Don't let it slip away...  One to watch: " + StarPlayerName;
 			if (isFavourite && !isPredictedFavourite) Commentary = "You're doing great!! One to watch: " + StarPlayerName;
 			if (!isFavourite && !isPredictedFavourite) Commentary = "Push a little harder.  One to watch: " + StarPlayerName;
 
 		}
-		else if (getGameTime() > 120 && getGameTime() < 261) {
+		else if (getGameTime() > 120 && getGameTime() < 261) { // Mid Game
 			if (isFavourite == true) Commentary = "...";
 			if (isFavourite == false) Commentary = "...";
 			
 		}
 		else if (getGameTime() > 60 && getGameTime() < 121) {
-			if (isFavourite && isPredictedFavourite) Commentary = "You are still the favourites!  Current MVP: " + MVPPlayerName;
+			if (isFavourite && isPredictedFavourite) Commentary = "You are still the favorites!  Current MVP: " + MVPPlayerName;
 			if (!isFavourite && isPredictedFavourite) Commentary = "Don't let it slip away...  Current MVP: " + MVPPlayerName;
 			if (isFavourite && !isPredictedFavourite) Commentary = "You're doing great!! Current MVP: " + MVPPlayerName;
 			if (!isFavourite && !isPredictedFavourite) Commentary = "Push a little harder.  Current MVP: " + MVPPlayerName;
 
 		}
-		else if (getGameTime() > 1 && getGameTime() < 61) {
-			if (isFavourite && isPredictedFavourite) Commentary = "Come on! You're still the favourites!";
+		else if (getGameTime() > 1 && getGameTime() < 61) { // Final minute
+			if (isFavourite && isPredictedFavourite) Commentary = "Come on! You're still the favorites!";
 			if (!isFavourite && isPredictedFavourite) Commentary = "Nooo, what's going wrong??";
 			if (isFavourite && !isPredictedFavourite) Commentary = "Amazing work! You were the underdogs!";
 			if (!isFavourite && !isPredictedFavourite) Commentary = "It's the taking part that counts...";
 
 		}
-		else if (getGameTime() < 1) {
+		else if (getGameTime() < 1) { // Basically the end of the match...
 			if (isPredictedFavourite && WinningTeam == LocalTeam123) {
 				Commentary = "I predicted a win for you and you delivered! Good job!";
 			} else if (isPredictedFavourite && WinningTeam != LocalTeam123) {
-				Commentary = "What happened?!? I had you down as favourites!";
+				Commentary = "What happened?!? I had you down as favorites!";
 			}
 			else if (isPredictedFavourite == false && WinningTeam == LocalTeam123) {
 				Commentary = "Wow! Well done! You defied the odds and won that one!";
@@ -221,19 +221,19 @@ void::matchodds::GetCommentary(std::string eventName) {
 
 		if (eventName == "Goal") {
 			//Commentary = "Goal, scored by Team: " + std::to_string(lastGoalScoredBy);
-			if ((lastGoalScoredBy) == LocalTeam123) {
-				if (WinningTeam == LocalTeam123) {
+			if ((lastGoalScoredBy) == LocalTeam123) { // Your team scored
+				if (WinningTeam == LocalTeam123) { // You're winning
 					Commentary = "Goooaaaalllll!!";
 				}
-				else {
+				else { // You're losing
 					Commentary = "You've pulled one back!";
 				}
 			}
-			else {
-				if (WinningTeam == LocalTeam123) {
+			else { // Oppenent scored
+				if (WinningTeam == LocalTeam123) {  // You're still winning though!
 					Commentary = "No harm, you're still winning!";
 				}
-				else {
+				else { // You're losing...
 					Commentary = "FF ? xD";
 				}
 			}
@@ -497,6 +497,20 @@ int matchodds::getGameTimeElapsed()
 	}
 
 }
+int matchodds::getMaxGameTime()
+{
+	ServerWrapper onlineServer = gameWrapper->GetOnlineGame();
+
+	if (!gameWrapper->IsInGame())
+	{
+		if (!gameWrapper->IsInOnlineGame())
+			return -1;
+		else if (onlineServer.IsNull())
+			return -1;
+		return onlineServer.GetGameTime();
+	}
+
+}
 
 PriWrapper matchodds::GetLocalPlayerPRI()
 {
@@ -535,6 +549,7 @@ void matchodds::Render(CanvasWrapper canvas)
 		int tmpPercentage2;
 		std::string tmpCommentary;
 		std::string tmpDebugString;
+		canvas.SetColor(LinearColor{ 255, 255, 255, 255 }); // White
 
 		if (isMatchEnded == false) { // Render Win %
 			//int ScreenWidthX = gameWrapper->GetScreenSize().X;
@@ -545,7 +560,7 @@ void matchodds::Render(CanvasWrapper canvas)
 			Vector2 textPosTeam0 = { (canvas.GetSize().X / 2) - 250, 30 }; // Position for the '%' figure next to the scoreboard
 			Vector2 textPosTeam1 = { (canvas.GetSize().X / 2) + 200, 30 };
 
-			canvas.SetColor(LinearColor{ 255, 255, 255, 255 }); // White
+			
 			canvas.SetPosition(imagePosTeam0);
 			canvas.DrawTexture(dice.get(), 0.05f); // Draw the 'dice' image to the screen
 			canvas.SetPosition(textPosTeam0);
@@ -567,7 +582,6 @@ void matchodds::Render(CanvasWrapper canvas)
 		}
 
 		std::string tmpString;
-		LinearColor tmpColour = { 255, 255, 255, 255 }; // White
 
 		int tmpCommentatorYPos = 90;
 		if (isMatchEnded == true) tmpCommentatorYPos = 10;
@@ -578,21 +592,21 @@ void matchodds::Render(CanvasWrapper canvas)
 			canvas.SetColor(CommentaryColour);
 			canvas.SetPosition(textPosCommentator);
 			canvas.DrawString("\"" + Commentary + "\"", 1.9, 1.9, 1);
-			tmpColour = { 255, 255, 255, 255 }; // White
-			canvas.SetColor(tmpColour);
+			canvas.SetColor(LinearColor{ 255, 255, 255, 255 }); // White
 			canvas.SetPosition(imagePosCommentator);
 			canvas.DrawTexture(commentator.get(), 0.10f);
 		}
 
 		
 		// Debug Text
-		//int ScreenWidthY = gameWrapper->GetScreenSize().Y;
-		//Vector2 tmpDebugPosition = { 500, ScreenWidthY - 30 };
-		//canvas.SetPosition(tmpDebugPosition);
-
+		int ScreenY = gameWrapper->GetScreenSize().Y;
+		Vector2 tmpDebugPosition = { 500, ScreenY - 100 };
+		canvas.SetPosition(tmpDebugPosition);
 		//tmpDebugString = "Local: " + std::to_string(LocalTeam123) + " T1T " + std::to_string(GetTeamTotal(1)) + " T2T " + std::to_string(GetTeamTotal(2)) + " MMRT " + std::to_string(TotalMMR) + " Score " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]) + " : " + std::to_string(WinningTeam) + "|" + std::to_string(lastGoalScoredBy);
-		//tmpDebugString = "ScreenSize: " + std::to_string(ScreenWidthY) + " x " + std::to_string(ScreenWidthY);
-		//canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
+		std::string tmpLang = gameWrapper->GetUILanguage().ToString();
+		tmpDebugString = "Lang " + tmpLang;
+
+		canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
 
 	}
 
