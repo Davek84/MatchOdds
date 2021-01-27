@@ -10,7 +10,7 @@
 #define LINMATH_H
 long tmpCount = 0;
 
-BAKKESMOD_PLUGIN(matchodds, "Shows the match favourite + ongoing % chance of winning", "1.1", 0x0)
+BAKKESMOD_PLUGIN(matchodds, "Shows the match favourite + ongoing % chance of winning", "1.2", 0x0)
 
 void matchodds::onLoad()
 {
@@ -585,10 +585,10 @@ void matchodds::Render(CanvasWrapper canvas)
 		}
 
 		// Debug Text
-		Vector2 tmpDebugPosition = { 500,1060 };
-		canvas.SetPosition(tmpDebugPosition);
-		tmpDebugString = "Local: " + std::to_string(LocalTeam123) + " T1T " + std::to_string(GetTeamTotal(1)) + " T2T " + std::to_string(GetTeamTotal(2)) + " MMRT " + std::to_string(TotalMMR) + " Score " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]) + " : " + std::to_string(WinningTeam) + "|" + std::to_string(lastGoalScoredBy);
-		canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
+		//Vector2 tmpDebugPosition = { 500,1060 };
+		//canvas.SetPosition(tmpDebugPosition);
+		//tmpDebugString = "Local: " + std::to_string(LocalTeam123) + " T1T " + std::to_string(GetTeamTotal(1)) + " T2T " + std::to_string(GetTeamTotal(2)) + " MMRT " + std::to_string(TotalMMR) + " Score " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]) + " : " + std::to_string(WinningTeam) + "|" + std::to_string(lastGoalScoredBy);
+		//canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
 
 	}
 
