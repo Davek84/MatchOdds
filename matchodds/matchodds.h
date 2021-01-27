@@ -9,6 +9,7 @@ class matchodds : public BakkesMod::Plugin::BakkesModPlugin
 {
 private:
 	std::shared_ptr<bool> bEnabled;
+	std::shared_ptr<bool> bCommentaryEnabled;
 	int TeamTotal[3] = { };
 	int TeamTotalExtras[3] = { };
 	int TeamScore[3] = { };

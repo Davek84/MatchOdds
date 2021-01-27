@@ -10,13 +10,15 @@
 #define LINMATH_H
 long tmpCount = 0;
 
-BAKKESMOD_PLUGIN(matchodds, "Shows the match favourite + ongoing % chance of winning", "1.2", 0x0)
+BAKKESMOD_PLUGIN(matchodds, "Shows the match favourite + ongoing % chance of winning", "1.3", 0x0)
 
 void matchodds::onLoad()
 {
 	LoadImgs();
 	bEnabled = std::make_shared<bool>(true);
-	cvarManager->registerCvar("MatchOdds_Enable", "1", "Enabled MatchOdds", true, true, 0, true, 1).bindTo(bEnabled);
+	cvarManager->registerCvar("matchodds_enabled", "1", "Enable MatchOdds", true, true, 0, true, 1).bindTo(bEnabled);
+	bCommentaryEnabled = std::make_shared<bool>(true);
+	cvarManager->registerCvar("matchodds_commentaryenabled", "1", "Enable Commentary", true, true, 0, true, 1).bindTo(bCommentaryEnabled);
 	
 	gameWrapper->RegisterDrawable(bind(&matchodds::Render, this, std::placeholders::_1));
 
@@ -265,6 +267,8 @@ void matchodds::onUnload()
 void matchodds::GetCurrentScore() {
 	if (!(*bEnabled)) return;
 	if (!gameWrapper->IsInOnlineGame() && !gameWrapper->IsInReplay()) return;
+
+	//TODO: GoalMMR should be dynamic based on Team Size "a 3 goal advantage is more significant in 3v3 vs 1v1" thanks DrStein#6280 for the suggestion
 	int GoalMMR = 200; // How  much to add on for a goal
 	int TimeMMR1 = 0;
 	int TimeMMR2 = 0;
@@ -603,8 +607,10 @@ void matchodds::Render(CanvasWrapper canvas)
 			canvas.DrawString(std::to_string(tmpPercentage2) + "%", 1.9, 1.9, 0);
 		}
 
-		std::string tmpString;
+		if (*bCommentaryEnabled) {
 
+		
+		std::string tmpString;
 		int tmpCommentatorYPos = 90 + YScale;
 		if (isMatchEnded == true) tmpCommentatorYPos = 10;
 		Vector2 imagePosCommentator = { (canvas.GetSize().X / 2) - 150 - (Commentary.length() * 4), tmpCommentatorYPos };
@@ -628,7 +634,7 @@ void matchodds::Render(CanvasWrapper canvas)
 		//tmpDebugString = "Lang " + std::to_string(ScreenY);
 
 		//canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
-
+		}
 	}
 
 
