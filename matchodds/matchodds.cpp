@@ -241,7 +241,9 @@ void::matchodds::GetCommentary(std::string eventName) {
 		}
 
 		//if (eventName == "GameUpdated") Commentary = "Debug: getGameTime=" + std::to_string(tmpCount++);
-		if (isOvertime) {
+
+
+		if (isOvertime) { //TODO: Add # of shots for each team , super handy to see during Overtime in a tournament!
 			if (isFavourite == true) Commentary = "It's overtime! Time to focus! You're the favourites here!";
 			if (isFavourite == false) Commentary = "Go for the upset! Cmon you underdogs!";
 		}
@@ -344,6 +346,8 @@ void matchodds::MatchEnded(std::string eventName) { // Triggered at the very end
 	WinningTeam = 0;
 	isPredictedFavourite = false;
 	lastGoalScoredBy = 0;
+	randomValue = rand() % 1; // "Random" number between 0 and 1
+
 }
 void matchodds::RoundEnded(std::string eventName) { // Triggered after a goal is scored?
 	MatchStates MatchState = s_InMatch;
@@ -545,8 +549,26 @@ void matchodds::Render(CanvasWrapper canvas)
 	if (!(*bEnabled)) return; // Don't display if the plugin is disabled...
 	if (gameWrapper->IsInGame() == 1 || gameWrapper->IsInOnlineGame() == 1 || gameWrapper->IsInReplay() == 1) { //Display if user is in an online game (Casual, Ranked, Tournament)
 		if (StarPlayerName == "") return; //Only render if we have some MMR data
+		int ScreenY = gameWrapper->GetScreenSize().Y;
+		float ImageScale;
+		int YScale = 0;
+		int XScale = 0;
+		if (ScreenY <= 1000) {
+			ImageScale = 0.04f;
+			YScale = -5;
+			XScale = 0;
+		}
+		else if (ScreenY >= 1399) {
+			ImageScale = 0.06f;
+			YScale = 15;
+			XScale = 50;
+		} else {
+			ImageScale = 0.05f;
+			YScale = 0;
+			XScale = 0;
+		}
 		float tmpPercentage = 0;
-		int tmpPercentage2;
+		int tmpPercentage2 = 0;
 		std::string tmpCommentary;
 		std::string tmpDebugString;
 		canvas.SetColor(LinearColor{ 255, 255, 255, 255 }); // White
@@ -554,15 +576,15 @@ void matchodds::Render(CanvasWrapper canvas)
 		if (isMatchEnded == false) { // Render Win %
 			//int ScreenWidthX = gameWrapper->GetScreenSize().X;
 			
-			Vector2 imagePosTeam0 = { (canvas.GetSize().X / 2) - 320, 15 }; // Position for the 'dice' image next to the scoreboard
-			Vector2 imagePosTeam1 = { (canvas.GetSize().X / 2) + 260, 15 };
+			Vector2 imagePosTeam0 = { (canvas.GetSize().X / 2) - (320 + XScale), 15 }; // Position for the 'dice' image next to the scoreboard
+			Vector2 imagePosTeam1 = { (canvas.GetSize().X / 2) + (260 + XScale), 15 };
 
-			Vector2 textPosTeam0 = { (canvas.GetSize().X / 2) - 250, 30 }; // Position for the '%' figure next to the scoreboard
-			Vector2 textPosTeam1 = { (canvas.GetSize().X / 2) + 200, 30 };
+			Vector2 textPosTeam0 = { (canvas.GetSize().X / 2) - (250 + XScale), 30 }; // Position for the '%' figure next to the scoreboard
+			Vector2 textPosTeam1 = { (canvas.GetSize().X / 2) + (200 + XScale), 30 };
 
 			
 			canvas.SetPosition(imagePosTeam0);
-			canvas.DrawTexture(dice.get(), 0.05f); // Draw the 'dice' image to the screen
+			canvas.DrawTexture(dice.get(), ImageScale); // Draw the 'dice' image to the screen
 			canvas.SetPosition(textPosTeam0);
 			if (LocalTeam123 == 1) tmpPercentage = static_cast<float>(GetTeamTotal(1) / static_cast<float>(TotalMMR)); // Check what team you're on and then render the correct % on the correct side of the scoreboard
 			if (LocalTeam123 == 2) tmpPercentage = static_cast<float>(GetTeamTotal(2) / static_cast<float>(TotalMMR));
@@ -571,7 +593,7 @@ void matchodds::Render(CanvasWrapper canvas)
 			canvas.DrawString(std::to_string(tmpPercentage2) + "%", 1.9, 1.9, 0); // Draw the %
 
 			canvas.SetPosition(imagePosTeam1);
-			canvas.DrawTexture(dice.get(), 0.05f);
+			canvas.DrawTexture(dice.get(), ImageScale);
 			canvas.SetPosition(textPosTeam1);
 
 			if (LocalTeam123 == 1) tmpPercentage = static_cast<float>(GetTeamTotal(2) / static_cast<float>(TotalMMR));
@@ -583,10 +605,10 @@ void matchodds::Render(CanvasWrapper canvas)
 
 		std::string tmpString;
 
-		int tmpCommentatorYPos = 90;
+		int tmpCommentatorYPos = 90 + YScale;
 		if (isMatchEnded == true) tmpCommentatorYPos = 10;
 		Vector2 imagePosCommentator = { (canvas.GetSize().X / 2) - 150 - (Commentary.length() * 4), tmpCommentatorYPos };
-		Vector2 textPosCommentator = { (canvas.GetSize().X / 2) - 75 - (Commentary.length() * 4), tmpCommentatorYPos + 15 };
+		Vector2 textPosCommentator = { (canvas.GetSize().X / 2) - 75 - (Commentary.length() * 4), tmpCommentatorYPos + 15};
 		
 		if (Commentary != "") {
 			canvas.SetColor(CommentaryColour);
@@ -594,19 +616,18 @@ void matchodds::Render(CanvasWrapper canvas)
 			canvas.DrawString("\"" + Commentary + "\"", 1.9, 1.9, 1);
 			canvas.SetColor(LinearColor{ 255, 255, 255, 255 }); // White
 			canvas.SetPosition(imagePosCommentator);
-			canvas.DrawTexture(commentator.get(), 0.10f);
+			canvas.DrawTexture(commentator.get(), (ImageScale * 2));
 		}
 
 		
 		// Debug Text
-		int ScreenY = gameWrapper->GetScreenSize().Y;
 		Vector2 tmpDebugPosition = { 500, ScreenY - 100 };
 		canvas.SetPosition(tmpDebugPosition);
 		//tmpDebugString = "Local: " + std::to_string(LocalTeam123) + " T1T " + std::to_string(GetTeamTotal(1)) + " T2T " + std::to_string(GetTeamTotal(2)) + " MMRT " + std::to_string(TotalMMR) + " Score " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]) + " : " + std::to_string(WinningTeam) + "|" + std::to_string(lastGoalScoredBy);
-		std::string tmpLang = gameWrapper->GetUILanguage().ToString();
-		tmpDebugString = "Lang " + tmpLang;
+		
+		//tmpDebugString = "Lang " + std::to_string(ScreenY);
 
-		canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
+		//canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
 
 	}
 

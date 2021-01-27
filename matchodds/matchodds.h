@@ -37,6 +37,7 @@ private:
 	int WinningTeam = 0;
 	bool isPredictedFavourite = false;
 	int lastGoalScoredBy = 0;
+	int randomValue = 0;
 	enum  MatchStates
 	{
 		s_PreMatch,
