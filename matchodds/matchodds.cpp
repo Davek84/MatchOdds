@@ -537,6 +537,8 @@ void matchodds::Render(CanvasWrapper canvas)
 		std::string tmpDebugString;
 
 		if (isMatchEnded == false) { // Render Win %
+			//int ScreenWidthX = gameWrapper->GetScreenSize().X;
+			
 			Vector2 imagePosTeam0 = { (canvas.GetSize().X / 2) - 320, 15 }; // Position for the 'dice' image next to the scoreboard
 			Vector2 imagePosTeam1 = { (canvas.GetSize().X / 2) + 260, 15 };
 
@@ -564,8 +566,6 @@ void matchodds::Render(CanvasWrapper canvas)
 			canvas.DrawString(std::to_string(tmpPercentage2) + "%", 1.9, 1.9, 0);
 		}
 
-		//TODO: Move commentary to seperate function, doesn't need to run this code every frame as it doesn't change too often...
-		//TODO: Add more strings and be much more dynamic before, during and after a game. (i.e. "Well done, I had you down as underdogs but you prooved me wrong!")
 		std::string tmpString;
 		LinearColor tmpColour = { 255, 255, 255, 255 }; // White
 
@@ -584,10 +584,14 @@ void matchodds::Render(CanvasWrapper canvas)
 			canvas.DrawTexture(commentator.get(), 0.10f);
 		}
 
+		
 		// Debug Text
-		//Vector2 tmpDebugPosition = { 500,1060 };
+		//int ScreenWidthY = gameWrapper->GetScreenSize().Y;
+		//Vector2 tmpDebugPosition = { 500, ScreenWidthY - 30 };
 		//canvas.SetPosition(tmpDebugPosition);
+
 		//tmpDebugString = "Local: " + std::to_string(LocalTeam123) + " T1T " + std::to_string(GetTeamTotal(1)) + " T2T " + std::to_string(GetTeamTotal(2)) + " MMRT " + std::to_string(TotalMMR) + " Score " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]) + " : " + std::to_string(WinningTeam) + "|" + std::to_string(lastGoalScoredBy);
+		//tmpDebugString = "ScreenSize: " + std::to_string(ScreenWidthY) + " x " + std::to_string(ScreenWidthY);
 		//canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
 
 	}
