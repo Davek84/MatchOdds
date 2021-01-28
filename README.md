@@ -13,8 +13,10 @@
 - Dynamic Commentary based on how your team is performing
 
 ## Versions
- - 1.1 - Commentary overhaul
- - 1.0 - Initial launch, probably bugs!
+- 1.3 - Fixed issue with 1440p displays + added a cvar *matchodds_commentaryenabled* set this to *0* if you only want to see the win % indicators.
+- 1.2 - Removed debug text from appearing
+- 1.1 - Commentary overhaul
+- 1.0 - Initial launch, probably bugs!
 
 ## Contact
 Any issues find me on Discord: Civilian360#9819
