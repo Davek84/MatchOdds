@@ -6,11 +6,12 @@
 #include "PlaylistData.h"
 #include <cmath>
 #include "bakkesmod/wrappers/GameObject/Stats/StatEventWrapper.h"
+#include "timer.h"
 
 #define LINMATH_H
 long tmpCount = 0;
 
-BAKKESMOD_PLUGIN(matchodds, "Shows the match favourite + ongoing % chance of winning", "1.3", 0x0)
+BAKKESMOD_PLUGIN(matchodds, "Shows the match favorite + win % throughout the game", "1.3.1", 0x0)
 
 void matchodds::onLoad()
 {
@@ -19,7 +20,12 @@ void matchodds::onLoad()
 	cvarManager->registerCvar("matchodds_enabled", "1", "Enable MatchOdds", true, true, 0, true, 1).bindTo(bEnabled);
 	bCommentaryEnabled = std::make_shared<bool>(true);
 	cvarManager->registerCvar("matchodds_commentaryenabled", "1", "Enable Commentary", true, true, 0, true, 1).bindTo(bCommentaryEnabled);
-	
+	bPercentagesEnabled = std::make_shared<bool>(true);
+	cvarManager->registerCvar("matchodds_percentagesenabled", "1", "Enable Percentages", true, true, 0, true, 1).bindTo(bPercentagesEnabled);
+
+	//*bEnabled = cvarManager->getCvar("matchodds_enabled").getBoolValue();
+	//cvarManager->getCvar("matchodds_enabled").addOnValueChanged(std::bind(bEnabled, this, std::placeholders::_1, std::placeholders::_2));
+
 	gameWrapper->RegisterDrawable(bind(&matchodds::Render, this, std::placeholders::_1));
 
 	//gameWrapper->HookEvent("Function Engine.Actor.MatchStarting", std::bind(&matchodds::MatchStarting, this, std::placeholders::_1));
@@ -135,7 +141,7 @@ void matchodds::statTickerEvent(ServerWrapper caller, void* args) {
 		GetCurrentScore();
 		CalculateStats("Goal");
 		GetCommentary("Goal");
-	} else { // TODO: Find a less hacky way of updating the stats during the game...
+	} else { // TODO: Find a less hacky way of updating the stats during the game... (i.e. on a timer)
 		
 		GetCurrentScore();
 		UpdateTeamTotal(); 
@@ -146,6 +152,7 @@ void matchodds::statTickerEvent(ServerWrapper caller, void* args) {
 
 
 }
+
 void::matchodds::GetCommentary(std::string eventName) {
 
 	if (!(*bEnabled)) return;
@@ -212,7 +219,7 @@ void::matchodds::GetCommentary(std::string eventName) {
 				Commentary = "Wow! Well done! You defied the odds and won that one!";
 			}
 			else if (isPredictedFavourite == false && WinningTeam != LocalTeam123) {
-				Commentary = "Well.. it's the taking part that counts...";
+				//Commentary = "Well.. it's the taking part that counts...";
 			}
 			
 		}
@@ -228,7 +235,10 @@ void::matchodds::GetCommentary(std::string eventName) {
 					Commentary = "Goooaaaalllll!!";
 				}
 				else { // You're losing
-					Commentary = "You've pulled one back!";
+					if (GoalDifference > 3) {
+						Commentary = "You've pulled one back!";
+					}
+					
 				}
 			}
 			else { // Oppenent scored
@@ -236,7 +246,9 @@ void::matchodds::GetCommentary(std::string eventName) {
 					Commentary = "No harm, you're still winning!";
 				}
 				else { // You're losing...
-					Commentary = "FF ? xD";
+					if (GoalDifference > 4) {
+						Commentary = "FF ? xD";
+					}
 				}
 			}
 			
@@ -251,7 +263,7 @@ void::matchodds::GetCommentary(std::string eventName) {
 		}
 	}
 	else {
-		Commentary = "Calculating prediction...";
+		Commentary = "";
 	}
 	//if (isMatchEnded == true) Commentary = "..."; // TODO: Actually identify when user is on the post match screen
 }
@@ -364,6 +376,19 @@ void matchodds::MatchStarted(std::string eventName) { // Triggered at the very s
 		GetCommentary("GameUpdated");
 		return;
 	}
+
+	//CallBackTimer ctimer; // Setup Timer
+	//ctimer.stop(); //Stop if it's running
+	//const std::string prompt_message = "-------User Prompt-------\n";
+	// ctimer.start(2000, [prompt_message]() {
+	//	//GetCommentary();
+ //  });
+
+	//ctimer.start(2000, [prompt_message]() {
+	//std::cout << prompt_message << std::endl;
+   //});
+
+	
 }
 void matchodds::GameUpdated(std::string eventName) {
 	//if (gameWrapper->IsInGame() == 1) {
@@ -398,7 +423,7 @@ void matchodds::EndGameHighlights(std::string eventName) {
 
 void matchodds::CalculateStats(std::string eventName)
 {
-	cvarManager->log("Calc Stats: " + eventName);
+	//cvarManager->log("Calc Stats: " + eventName);
 	if (!(*bEnabled)) return;
 	if (!gameWrapper->IsInOnlineGame()) return;
 	ServerWrapper server = GetCurrentServer();
@@ -552,6 +577,7 @@ void matchodds::Render(CanvasWrapper canvas)
 {
 	if (!(*bEnabled)) return; // Don't display if the plugin is disabled...
 	if (gameWrapper->IsInGame() == 1 || gameWrapper->IsInOnlineGame() == 1 || gameWrapper->IsInReplay() == 1) { //Display if user is in an online game (Casual, Ranked, Tournament)
+		if (gameWrapper->IsInFreeplay()) return; // Exclude Freeplay
 		if (StarPlayerName == "") return; //Only render if we have some MMR data
 		int ScreenY = gameWrapper->GetScreenSize().Y;
 		float ImageScale;
@@ -577,7 +603,7 @@ void matchodds::Render(CanvasWrapper canvas)
 		std::string tmpDebugString;
 		canvas.SetColor(LinearColor{ 255, 255, 255, 255 }); // White
 
-		if (isMatchEnded == false) { // Render Win %
+		if (isMatchEnded == false && *bPercentagesEnabled) { // Render Win %
 			//int ScreenWidthX = gameWrapper->GetScreenSize().X;
 			
 			Vector2 imagePosTeam0 = { (canvas.GetSize().X / 2) - (320 + XScale), 15 }; // Position for the 'dice' image next to the scoreboard
@@ -627,8 +653,8 @@ void matchodds::Render(CanvasWrapper canvas)
 
 		
 		// Debug Text
-		Vector2 tmpDebugPosition = { 500, ScreenY - 100 };
-		canvas.SetPosition(tmpDebugPosition);
+		//Vector2 tmpDebugPosition = { 500, ScreenY - 100 };
+		//canvas.SetPosition(tmpDebugPosition);
 		//tmpDebugString = "Local: " + std::to_string(LocalTeam123) + " T1T " + std::to_string(GetTeamTotal(1)) + " T2T " + std::to_string(GetTeamTotal(2)) + " MMRT " + std::to_string(TotalMMR) + " Score " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]) + " : " + std::to_string(WinningTeam) + "|" + std::to_string(lastGoalScoredBy);
 		
 		//tmpDebugString = "Lang " + std::to_string(ScreenY);
