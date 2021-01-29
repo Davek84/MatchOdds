@@ -13,10 +13,18 @@
 - Dynamic Commentary based on how your team is performing
 
 ## Versions
-- 1.3 - Fixed issue with 1440p displays + added a cvar *matchodds_commentaryenabled* set this to *0* if you only want to see the win % indicators.
+- 1.4 - Bug fixes, improved commentary and score/goal difference calculations
+- 1.3.1 - Included plugin settings, hit F2 in game and visit the Plugins tab. Fixed issue with 1440p displays + some other bugs.
 - 1.2 - Removed debug text from appearing
 - 1.1 - Commentary overhaul
 - 1.0 - Initial launch, probably bugs!
+
+## Installation
+Download on https://bakkesplugins.com/plugins/view/176
+
+or,
+
+Releases page - https://github.com/Davek84/MatchOdds/releases/
 
 ## Contact
 Any issues find me on Discord: Civilian360#9819
