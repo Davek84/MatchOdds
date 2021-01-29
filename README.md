@@ -19,5 +19,12 @@
 - 1.1 - Commentary overhaul
 - 1.0 - Initial launch, probably bugs!
 
+## Installation
+Download on https://bakkesplugins.com/plugins/view/176
+
+or,
+
+Releases page - https://github.com/Davek84/MatchOdds/releases/
+
 ## Contact
 Any issues find me on Discord: Civilian360#9819
