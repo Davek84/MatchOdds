@@ -56,7 +56,7 @@ public:
 	int getGameTime();
 	int getMaxGameTime();
 	int getGameTimeElapsed();
-	void GetCurrentScore();
+	void GetCurrentScore(std::string eventName = "", int TeamNum = -1);
 	void onLoad() override;
 	void onUnload() override;
 	void UpdateTeamTotalExtras(int TeamNumber, int Amount);
