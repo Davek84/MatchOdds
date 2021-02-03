@@ -1,8 +1,8 @@
 #pragma once
 #pragma comment(lib, "PluginSDK.lib")
 #include "bakkesmod/plugin/bakkesmodplugin.h"
-#include "RankEnums.h"
-#include "PlaylistData.h"
+//#include "RankEnums.h"
+//*****************#include "PlaylistData.h"
 #include <string>
 
 class matchodds : public BakkesMod::Plugin::BakkesModPlugin

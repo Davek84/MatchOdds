@@ -2,17 +2,26 @@
 #include "matchodds.h"
 #include "bakkesmod/wrappers/MMRWrapper.h"
 #include "String.h"
-#include "RankEnums.h"
-#include "PlaylistData.h"
 #include <cmath>
 #include "bakkesmod/wrappers/GameObject/Stats/StatEventWrapper.h"
-#include "timer.h"
+//#include "timer.h"
 
 #define LINMATH_H
 long tmpCount = 0;
 
-BAKKESMOD_PLUGIN(matchodds, "Shows the match favorite + win % throughout the game", "1.4", 0x0)
-
+BAKKESMOD_PLUGIN(matchodds, "Shows win percentages + commentary throughout the game.", "1.4", 0x0);
+// ============================================================================
+// MatchOdds
+// by Civilian360
+// Discord: Civilian360#9819
+//
+// TODO:
+// 'Positive' (the default) & 'Toxic' mode (with more commentaries)
+// Customisation of size & position
+// Taking the team size in to account with the odds calculations
+// Update every second via a Timer or some other hook?
+//
+// ============================================================================
 void matchodds::onLoad()
 {
 	LoadImgs();
