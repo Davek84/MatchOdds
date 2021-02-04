@@ -2,5 +2,17 @@ MatchOdds Plugin
 1|Enable Plugin|matchodds_enabled
 1|Enable Commentary|matchodds_commentaryenabled
 1|Enable Win Percentages|matchodds_percentagesenabled
-7|
+8|
+9|Positioning/Scale
+1|Override Commentary Position?|cl_commentator_override
+5|Commentator X|cl_commentator_x|0|3000
+5|Commentator Y|cl_commentator_y|0|2000
+5|Commentator Text Scale|cl_commentator_textscale|0|200
+5|Commentator Img Scale|cl_commentator_imagescale|0|100
+5|Dice Img Scale|cl_dice_imagescale|0|100
+8|
+9|Other
+6|Commentary Type|cl_commentarytype|Default@default&Toxic@Toxic
+8|
+8|
 9|Any bugs/issues contact me on Discord: Civilian360#9819
