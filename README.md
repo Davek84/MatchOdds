@@ -11,8 +11,12 @@
 - Displays the win chance of each team throughout the game (updated on each goal)
 - Displays the 'Star Player' _(Player with the highest MMR)_
 - Dynamic Commentary based on how your team is performing
+- Toxic commentary if you're feeling brave...
 
 ## Versions
+- 1.5 - Toxic Commentary Added! (Warning: It is brutal), improved the settings page.
+![MatchOdds Settings!](https://i.imgur.com/DNrhdGm.png "MatchOdds Settingst")
+
 - 1.4 - Bug fixes, improved commentary and score/goal difference calculations
 - 1.3.1 - Included plugin settings, hit F2 in game and visit the Plugins tab. Fixed issue with 1440p displays + some other bugs.
 - 1.2 - Removed debug text from appearing

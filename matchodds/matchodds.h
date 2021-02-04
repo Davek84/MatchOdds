@@ -11,6 +11,16 @@ private:
 	std::shared_ptr<bool> bEnabled;
 	std::shared_ptr<bool> bCommentaryEnabled;
 	std::shared_ptr<bool> bPercentagesEnabled;
+	std::shared_ptr<bool> cl_commentator_override;
+	std::shared_ptr<int> cl_commentator_x;
+	std::shared_ptr<int> cl_commentator_y;
+	std::shared_ptr<int> cl_commentator_textscale;
+	std::shared_ptr<int> cl_commentator_imagescale;
+	std::shared_ptr<int> cl_dice_imagescale;
+	std::shared_ptr<std::string> cl_commentarytype;
+
+	int rndNumber = 1;
+	int tmpCounter = 0;
 	int TeamTotal[3] = { };
 	int TeamTotalExtras[3] = { };
 	int TeamScore[3] = { };
@@ -32,9 +42,9 @@ private:
 	bool isMatchEnded = true;
 	bool isRoundStarted = false;
 	bool isOvertime = false;
-	int initialRand = 1;
 	std::string Commentary = "";
 	LinearColor CommentaryColour = { 255, 255, 255, 255 }; // White
+	LinearColor CommentatorColour = { 255, 255, 255, 255 }; // White
 	int GoalDifference = 0;
 	int WinningTeam = 0;
 	bool isPredictedFavourite = false;
@@ -82,6 +92,7 @@ public:
 	void UpdateTotalMMR(int Team1, int Team2);
 	int GetTeamTotal(int TeamNumber);
 	void GetCommentary(std::string eventName = "");
+	void GetToxicCommentary(std::string eventName = "");
 
 	ServerWrapper GetCurrentServer();
 	PriWrapper GetLocalPlayerPRI();
