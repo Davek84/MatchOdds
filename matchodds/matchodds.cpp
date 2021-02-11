@@ -377,7 +377,7 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 		}
 		else if (getGameTime() > 60 && getGameTime() < 121) {
 			Commentary = "...";
-			if (isFavourite && isPredictedFavourite) Commentary = "Somehow you're still favorites, not to your parents though...;
+			if (isFavourite && isPredictedFavourite) Commentary = "Somehow you're still favorites, not to your parents though...";
 			if (!isFavourite && isPredictedFavourite) Commentary = "Current MVP: " + MVPPlayerName;
 			if (isFavourite && !isPredictedFavourite) Commentary = "You're going to choke!  Current MVP: " + MVPPlayerName;
 			if (!isFavourite && !isPredictedFavourite) Commentary = "Loser!";
