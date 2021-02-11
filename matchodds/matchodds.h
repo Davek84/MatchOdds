@@ -58,6 +58,7 @@ private:
 		s_PostGoalCountdown,
 		s_MatchEnd,
 		s_MatchEndReplay,
+		s_MatchEndPodium,
 		s_Overtime,
 	};
 	MatchStates MatchState;
@@ -75,6 +76,7 @@ public:
 	void MatchStarted(std::string eventName);
 	void doesItTrigger(std::string eventName);
 	void EndGameHighlights(std::string eventName);
+	void PodiumMode(std::string eventName);
 	void RoundEnded(std::string eventName);
 	void RoundStarted(std::string eventName);
 	void GameUpdated(std::string eventName);

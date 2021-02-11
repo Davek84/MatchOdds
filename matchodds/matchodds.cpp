@@ -49,7 +49,8 @@ void matchodds::onLoad()
 
 	//gameWrapper->HookEvent("Function Engine.Actor.MatchStarting", std::bind(&matchodds::MatchStarting, this, std::placeholders::_1));
 
-	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.StartNewGame", std::bind(&matchodds::MatchStarted, this, std::placeholders::_1));
+	//gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.StartNewGame", std::bind(&matchodds::MatchStarted, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function ProjectX.GRI_X.EventGameStarted", std::bind(&matchodds::MatchStarted, this, std::placeholders::_1)); // Fires at the start of an online game
 
 	gameWrapper->HookEvent("Function GameEvent_Soccar_TA.Active.StartRound", std::bind(&matchodds::RoundStarted, this, std::placeholders::_1)); // Triggered at the start of the game when the round starts + when a goal is scored + after countdown finishes
 
@@ -83,7 +84,7 @@ void matchodds::onLoad()
 	//gameWrapper->HookEvent("Function TAGame.GameEvent_TA.Countdown.EndState", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));   // Doesn't exist
 	//gameWrapper->HookEvent("Function TAGame.GameEvent_TA.Finished.OnAllPlayersReady", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));   // Doesn't exist 
 	//gameWrapper->HookEvent("Function TAGame.GameEvent_TA.FinishedBase.IsFinished", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));   // Doesn't exist
-	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.SpawnPodiumCars", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function TAGame.Car_TA.EnablePodiumMode", std::bind(&matchodds::PodiumMode, this, std::placeholders::_1)); // End of game before the scoreboard
 	gameWrapper->HookEvent("Function Engine.GameReplicationInfo.StartMatch", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));  // 
 	gameWrapper->HookEvent("Function TAGame.GameEvent_Lobby_TA.StartFirstState", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));  // 
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TA.StartInitialCountDown", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));  // 
@@ -157,7 +158,6 @@ void matchodds::statTickerEvent(ServerWrapper caller, void* args) {
 	if (EventName == "Goal") {
 		tmpCounter = 0;
 		lastGoalScoredBy = receiver.GetTeamNum() + 1;
-		rndNumber = (rand() % 2 + 1);
 		GetCurrentScore("Goal", lastGoalScoredBy);
 		CalculateStats("Goal");
 		(*cl_commentarytype == "default") ? GetCommentary("Goal") : GetToxicCommentary("Goal");
@@ -180,6 +180,8 @@ void::matchodds::GetCommentary(std::string eventName) {
 
 	if (!(*bEnabled)) return;
 	if (!gameWrapper->IsInOnlineGame()) return;
+	srand(getGameTime());
+	rndNumber = (rand() % 2 + 1);
 	bool isFavourite = false;
 	Commentary = "";
 	if (PlayerMMRCaptured == PlayerCount) { // Do we have MMR for all players?  (This of course fails when in competative and 1 person leaves...)
@@ -238,7 +240,7 @@ void::matchodds::GetCommentary(std::string eventName) {
 			if (!isFavourite && !isPredictedFavourite) Commentary = "...";
 
 		}
-		else if (getGameTime() < 1) { // Basically the end of the match...
+		else if (MatchState == s_MatchEndPodium) { // Game over, Podium Screen
 			if (isPredictedFavourite && WinningTeam == LocalTeam123 && GoalDifference > 0) {
 				if (rndNumber == 1) Commentary = "I predicted a win for you and you delivered! Good job!";
 				if (rndNumber == 2) Commentary = "I predicted a win for you and you delivered! Well done!";
@@ -294,6 +296,10 @@ void::matchodds::GetCommentary(std::string eventName) {
 					}
 				}
 				else { // You're losing...
+					if (GoalDifference > 1) { 
+						if (rndNumber == 1) Commentary = "Don't be disheartened!";
+						if (rndNumber == 2) Commentary = "Nooo!";
+					}
 					if (GoalDifference > 3) { // By a lot!
 						if (rndNumber == 1) Commentary = "Well.. it's the taking part that counts";
 						if (rndNumber == 2) Commentary = "FF ? xD";
@@ -310,6 +316,7 @@ void::matchodds::GetCommentary(std::string eventName) {
 			if (isFavourite == true) Commentary = "You're the favorites, finish them off!";
 			if (isFavourite == false) Commentary = "Go for the upset! Cmon you underdogs!!";
 		}
+
 	}
 	else {
 		Commentary = "";
@@ -322,6 +329,8 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 
 	if (!(*bEnabled)) return;
 	if (!gameWrapper->IsInOnlineGame()) return;
+	srand(getGameTime());
+	rndNumber = (rand() % 2 + 1);
 	bool isFavourite = false;
 	Commentary = "";
 	if (PlayerMMRCaptured == PlayerCount) { // Do we have MMR for all players?  (This of course fails when in competative and 1 person leaves...)
@@ -357,7 +366,7 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 			Commentary = "...";
 			if (isFavourite && isPredictedFavourite && GoalDifference > 0) Commentary = "I'm surprised...  One to watch: " + StarPlayerName;
 			if (!isFavourite && isPredictedFavourite && GoalDifference > 0) Commentary = "Well you've f*cked this up haven't you?";
-			if (isFavourite && !isPredictedFavourite && GoalDifference > 0) Commentary = "Well look at you, maybe you can win back your mothers love by winning at RL...";
+			if (isFavourite && !isPredictedFavourite && GoalDifference > 0) Commentary = "Maybe you can win back your mothers love by winning at RL?";
 			if (!isFavourite && !isPredictedFavourite && GoalDifference > 0) Commentary = "You should have been aborted...";
 
 		}
@@ -368,7 +377,7 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 		}
 		else if (getGameTime() > 60 && getGameTime() < 121) {
 			Commentary = "...";
-			if (isFavourite && isPredictedFavourite) Commentary = "Somehow you're still favorites, not to me though...  Current MVP: " + MVPPlayerName;
+			if (isFavourite && isPredictedFavourite) Commentary = "Somehow you're still favorites, not to your parents though...;
 			if (!isFavourite && isPredictedFavourite) Commentary = "Current MVP: " + MVPPlayerName;
 			if (isFavourite && !isPredictedFavourite) Commentary = "You're going to choke!  Current MVP: " + MVPPlayerName;
 			if (!isFavourite && !isPredictedFavourite) Commentary = "Loser!";
@@ -376,13 +385,13 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 		}
 		else if (getGameTime() > 1 && getGameTime() < 61) { // Final minute
 			Commentary = "...";
-			if (isFavourite && isPredictedFavourite) Commentary = "Choke choke choke choke";
+			if (isFavourite && isPredictedFavourite) Commentary = "Choke choke choke choke!";
 			if (!isFavourite && isPredictedFavourite) Commentary = "What a dissapointment you've turned out to be";
 			if (isFavourite && !isPredictedFavourite) Commentary = "You'll f*ck this up!";
 			if (!isFavourite && !isPredictedFavourite) Commentary = "...";
 
 		}
-		else if (getGameTime() < 1) { // Basically the end of the match...
+		else if (MatchState == s_MatchEndPodium) { // Game over, Podium Screen
 			if (isPredictedFavourite && WinningTeam == LocalTeam123 && GoalDifference > 0) {
 				if (rndNumber == 1) Commentary = "I predicted you to win, somehow you managed it...";
 				if (rndNumber == 2) Commentary = "I predicted you to win, I still don't understand how?!?";
@@ -414,7 +423,7 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 				//Commentary = "Goal, Your team scored, Goal Difference: " + std::to_string(GoalDifference) + " Score: " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]);
 				if (WinningTeam == LocalTeam123) { // You're winning
 					if (GoalDifference < 3) {
-						if (rndNumber == 1) Commentary = "Goooaaaalllll!!";
+						if (rndNumber == 1) Commentary = "Luck...";
 						if (rndNumber == 2) Commentary = "Meh...";
 					}
 					else if (GoalDifference > 3) { // Winning by a lot!
@@ -568,20 +577,16 @@ void matchodds::MatchEnded(std::string eventName) { // Triggered at the very end
 	Commentary = "";
 	isPredictedFavourite = false;
 	lastGoalScoredBy = 0;
-	srand(78789877);
-	rndNumber = (rand() % 2 + 1);
-	//randomValue = rand() % 1; // "Random" number between 0 and 1
+
 
 }
 void matchodds::RoundEnded(std::string eventName) { // Triggered after a goal is scored?
 	MatchStates MatchState = s_InMatch;
-	srand(876222);
-	rndNumber = (rand() % 2 + 1);
+	
 	//cvarManager->log("Round Ended: " + eventName);
 }
 void matchodds::MatchStarted(std::string eventName) { // Triggered at the very start?
-	srand(5676576567);
-	rndNumber = (rand() % 2 + 1);
+	
 	 MatchState = s_PreMatch;
 	//cvarManager->log("Match Started " + eventName);
 	if (!gameWrapper->IsInOnlineGame()) {
@@ -605,7 +610,7 @@ void matchodds::MatchStarted(std::string eventName) { // Triggered at the very s
 void matchodds::GameUpdated(std::string eventName) { // fires every 'tick'
 	if (!gameWrapper->IsInOnlineGame()) return;
 	tmpCounter++;
-	if (tmpCounter == 8000) { // if nothing has happened in the game for a while, update things!
+	if (tmpCounter == 10000) { // if nothing has happened in the game for a while, update things!
 		UpdateTeamTotal();
 		(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
 		tmpCounter = 0;
@@ -632,6 +637,12 @@ void matchodds::EndGameHighlights(std::string eventName) {
 	 (*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
 	 GoalDifference = 0;
 	 WinningTeam = 0;
+}
+void matchodds::PodiumMode(std::string eventName) {
+	MatchState = s_MatchEndPodium;
+	(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
+	//GoalDifference = 0;
+	//WinningTeam = 0;
 }
 
 
