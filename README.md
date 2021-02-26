@@ -3,7 +3,7 @@
 - An easy way to see if you are the favorites or the underdogs for a match.
 - Displays the % chance of a win for each team (Updates throughout the game based on team MMR, score & time remaining)
 
-![MatchOdds Screenshot!](https://i.imgur.com/vHwlB0i.jpeg "MatchOdds Screenshot")
+![MatchOdds Screenshot!](https://i.imgur.com/V9bHACK.png "MatchOdds Screenshot")
 
 ## Features
 - Works in Casual, Competitive and Tournaments
@@ -14,6 +14,7 @@
 - Toxic commentary if you're feeling brave...
 
 ## Versions
+- 1.6 - Display a Star for the favorite team, tweaks to % calculation + updates more frequently in game, bug fixes.
 - 1.5 - Toxic Commentary Added! (Warning: It is brutal), improved the settings page.
 ![MatchOdds Settings!](https://i.imgur.com/DNrhdGm.png "MatchOdds Settingst")
 
@@ -24,11 +25,11 @@
 - 1.0 - Initial launch, probably bugs!
 
 ## Installation
-Download on https://bakkesplugins.com/plugins/view/176
+Download on BakkesMod Plugins : https://bakkesplugins.com/plugins/view/176
 
 or,
 
-Releases page - https://github.com/Davek84/MatchOdds/releases/
+GitHub Releases page - https://github.com/Davek84/MatchOdds/releases/
 
 ## Contact
 Any issues find me on Discord: Civilian360#9819
