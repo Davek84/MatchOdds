@@ -4,12 +4,11 @@
 #include "String.h"
 #include <cmath>
 #include "bakkesmod/wrappers/GameObject/Stats/StatEventWrapper.h"
-//#include "timer.h"
 
 #define LINMATH_H
 long tmpCount = 0;
 
-BAKKESMOD_PLUGIN(matchodds, "Shows win percentages + commentary throughout the game.", "1.5", 0x0);
+BAKKESMOD_PLUGIN(matchodds, "Shows win percentages + commentary throughout the game.", "1.6", 0x0);
 // ============================================================================
 // MatchOdds
 // by Civilian360
@@ -49,22 +48,23 @@ void matchodds::onLoad()
 
 	//gameWrapper->HookEvent("Function Engine.Actor.MatchStarting", std::bind(&matchodds::MatchStarting, this, std::placeholders::_1));
 
-	//gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.StartNewGame", std::bind(&matchodds::MatchStarted, this, std::placeholders::_1));
+
 	gameWrapper->HookEvent("Function ProjectX.GRI_X.EventGameStarted", std::bind(&matchodds::MatchStarted, this, std::placeholders::_1)); // Fires at the start of an online game
 
-	gameWrapper->HookEvent("Function GameEvent_Soccar_TA.Active.StartRound", std::bind(&matchodds::RoundStarted, this, std::placeholders::_1)); // Triggered at the start of the game when the round starts + when a goal is scored + after countdown finishes
+	gameWrapper->HookEvent("Function GameEvent_Soccar_TA.Active.StartRound", std::bind(&matchodds::RoundStarted, this, std::placeholders::_1)); // Triggered at the start of the game when the round starts, when a goal is scored + after countdown finishes
+	//gameWrapper->HookEvent("Function GameEvent_Soccar_TA.Active.BeginState", std::bind(&matchodds::BeginState, this, std::placeholders::_1));  // Triggers
+	gameWrapper->HookEvent("Function GameEvent_TA.Countdown.BeginState", std::bind(&matchodds::CountdownStarted, this, std::placeholders::_1));  // Triggers
+	gameWrapper->HookEvent("Function GameEvent_Soccar_TA.Countdown.EndState", std::bind(&matchodds::CountdownEnded, this, std::placeholders::_1));   // Triggers
 
-	//gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.OnMatchWinnerSet", bind(&matchodds::CalculateStats, this, std::placeholders::_1)); 
-	//gameWrapper->HookEvent("Function TAGame.Team_TA.EventScoreUpdated", std::bind(&matchodds::CalculateStats, this, std::placeholders::_1));
-	//gameWrapper->HookEvent("Function OnlineGameJoinGame_X.JoiningBase.IsJoiningGame", std::bind(&matchodds::CalculateStats, this, std::placeholders::_1));
+	//gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.OnMatchWinnerSet", bind(&matchodds::CalculateMMR, this, std::placeholders::_1)); 
+	//gameWrapper->HookEvent("Function TAGame.Team_TA.EventScoreUpdated", std::bind(&matchodds::CalculateMMR, this, std::placeholders::_1));
+	//gameWrapper->HookEvent("Function OnlineGameJoinGame_X.JoiningBase.IsJoiningGame", std::bind(&matchodds::CalculateMMR, this, std::placeholders::_1));
 
-	gameWrapper->HookEvent("Function TAGame.GameEvent_TA.EventPlayerAdded", std::bind(&matchodds::CalculateStats, this, std::placeholders::_1)); // Triggers
-	gameWrapper->HookEvent("Function TAGame.GameEvent_TA.EventPlayerRemoved", std::bind(&matchodds::CalculateStats, this, std::placeholders::_1)); // Triggers
-
-	gameWrapper->HookEvent("Function GameEvent_TA.Countdown.BeginState", std::bind(&matchodds::CalculateStats, this, std::placeholders::_1));  // Triggers
-
-	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.OnAllTeamsCreated", std::bind(&matchodds::CalculateStats, this, std::placeholders::_1)); // vs. Bots Triggered before selecting a team to join (very start of the game!)
-	gameWrapper->HookEvent("Function TAGame.PRI_TA.PostBeginPlay", std::bind(&matchodds::CalculateStats, this, std::placeholders::_1)); // Triggered when somone joins?
+	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.StartNewGame", std::bind(&matchodds::CalculateMMR, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function TAGame.GameEvent_TA.EventPlayerAdded", std::bind(&matchodds::CalculateMMR, this, std::placeholders::_1)); // Triggers
+	gameWrapper->HookEvent("Function TAGame.GameEvent_TA.EventPlayerRemoved", std::bind(&matchodds::CalculateMMR, this, std::placeholders::_1)); // Triggers
+	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.OnAllTeamsCreated", std::bind(&matchodds::CalculateMMR, this, std::placeholders::_1)); // vs. Bots Triggered before selecting a team to join (very start of the game!)
+	gameWrapper->HookEvent("Function TAGame.PRI_TA.PostBeginPlay", std::bind(&matchodds::CalculateMMR, this, std::placeholders::_1)); // Triggered when somone joins?
 
 	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.EndRound", std::bind(&matchodds::RoundEnded, this, std::placeholders::_1)); // Doesn't trigger
 	
@@ -85,9 +85,9 @@ void matchodds::onLoad()
 	//gameWrapper->HookEvent("Function TAGame.GameEvent_TA.Finished.OnAllPlayersReady", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));   // Doesn't exist 
 	//gameWrapper->HookEvent("Function TAGame.GameEvent_TA.FinishedBase.IsFinished", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));   // Doesn't exist
 	gameWrapper->HookEvent("Function TAGame.Car_TA.EnablePodiumMode", std::bind(&matchodds::PodiumMode, this, std::placeholders::_1)); // End of game before the scoreboard
-	gameWrapper->HookEvent("Function Engine.GameReplicationInfo.StartMatch", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));  // 
-	gameWrapper->HookEvent("Function TAGame.GameEvent_Lobby_TA.StartFirstState", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));  // 
-	gameWrapper->HookEvent("Function TAGame.GameEvent_TA.StartInitialCountDown", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));  // 
+	//gameWrapper->HookEvent("Function Engine.GameReplicationInfo.StartMatch", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));  // 
+	//gameWrapper->HookEvent("Function TAGame.GameEvent_Lobby_TA.StartFirstState", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));  // 
+	//gameWrapper->HookEvent("Function TAGame.GameEvent_TA.StartInitialCountDown", std::bind(&matchodds::doesItTrigger, this, std::placeholders::_1));  // 
 
 	gameWrapper->HookEventWithCallerPost<ServerWrapper>(
 		"Function TAGame.GFxHUD_TA.HandleStatTickerMessage",
@@ -159,7 +159,7 @@ void matchodds::statTickerEvent(ServerWrapper caller, void* args) {
 		tmpCounter = 0;
 		lastGoalScoredBy = receiver.GetTeamNum() + 1;
 		GetCurrentScore("Goal", lastGoalScoredBy);
-		CalculateStats("Goal");
+		CalculateMMR("Goal");
 		(*cl_commentarytype == "default") ? GetCommentary("Goal") : GetToxicCommentary("Goal");
 
 	} else if (EventName == "Assist") { //This occurs after the Goal event fires so it would override the commentry... hence we block it.
@@ -180,6 +180,7 @@ void::matchodds::GetCommentary(std::string eventName) {
 
 	if (!(*bEnabled)) return;
 	if (!gameWrapper->IsInOnlineGame()) return;
+	if (getGameTime() >= getMaxGameTime())  return; // Very start of game, things are weird here...
 	srand(getGameTime());
 	rndNumber = (rand() % 2 + 1);
 	bool isFavourite = false;
@@ -201,9 +202,23 @@ void::matchodds::GetCommentary(std::string eventName) {
 				isFavourite = false;
 			}
 		}
+		if (LocalTeam123 == 1) {
+			if (TeamBaselineMMR[1] > TeamBaselineMMR[2]) {
+				isPredictedFavourite = true;
+			}
+			else {
+				isPredictedFavourite = false;
+			}
+		}
+		else {
+			if (TeamBaselineMMR[2] > TeamBaselineMMR[1]) {
+				isPredictedFavourite = true;
+			}
+			else {
+				isPredictedFavourite = false;
+			}
+		}
 		if (getGameTime() > (getMaxGameTime() - 10)) { // Very Start of the game so store the predicted favourites
-
-			isPredictedFavourite = isFavourite; // Store the predicted favourite somewhere
 			if (isFavourite == true) {
 				if (rndNumber == 1) Commentary = "You are the favorites!  Star Player: " + StarPlayerName;
 				if (rndNumber == 2) Commentary = "You're the favorites!  Star Player: " + StarPlayerName;
@@ -240,7 +255,7 @@ void::matchodds::GetCommentary(std::string eventName) {
 			if (!isFavourite && !isPredictedFavourite) Commentary = "...";
 
 		}
-		else if (MatchState == s_MatchEndPodium) { // Game over, Podium Screen
+		if (MatchState == s_MatchEndPodium) { // Game over, Podium Screen
 			if (isPredictedFavourite && WinningTeam == LocalTeam123 && GoalDifference > 0) {
 				if (rndNumber == 1) Commentary = "I predicted a win for you and you delivered! Good job!";
 				if (rndNumber == 2) Commentary = "I predicted a win for you and you delivered! Well done!";
@@ -253,10 +268,6 @@ void::matchodds::GetCommentary(std::string eventName) {
 			} else if (isPredictedFavourite == false && WinningTeam != LocalTeam123 && GoalDifference > 0) {
 				//Commentary = "Well.. it's the taking part that counts...";
 			}
-			/*else if (GoalDifference == 0) {
-				Commentary = "Here comes the overtime...";
-			}*/
-			
 		}
 
 
@@ -329,6 +340,7 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 
 	if (!(*bEnabled)) return;
 	if (!gameWrapper->IsInOnlineGame()) return;
+	if (getGameTime() >= getMaxGameTime())  return; // Very start of game, things are weird here...
 	srand(getGameTime());
 	rndNumber = (rand() % 2 + 1);
 	bool isFavourite = false;
@@ -350,9 +362,23 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 				isFavourite = false;
 			}
 		}
-		if (getGameTime() > (getMaxGameTime() - 10)) { // Very Start of the game so store the predicted favourites
-
-			isPredictedFavourite = isFavourite; // Store the predicted favourite somewhere
+			if (LocalTeam123 == 1) {
+				if (TeamBaselineMMR[1] > TeamBaselineMMR[2]) {
+					isPredictedFavourite = true;
+				}
+				else {
+					isPredictedFavourite = false;
+				}
+			}
+			else {
+				if (TeamBaselineMMR[2] > TeamBaselineMMR[1]) {
+					isPredictedFavourite = true;
+				}
+				else {
+					isPredictedFavourite = false;
+				}
+			}
+			if (getGameTime() > (getMaxGameTime() - 10)) { // Very Start of the game so store the predicted favourites
 			if (isFavourite == true) {
 				if (rndNumber == 1) Commentary = "You're favorites, Don't f*ck this up you idiot...";
 				if (rndNumber == 2) Commentary = "You're favorites but you'll find a way to screw this up...";
@@ -391,7 +417,7 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 			if (!isFavourite && !isPredictedFavourite) Commentary = "...";
 
 		}
-		else if (MatchState == s_MatchEndPodium) { // Game over, Podium Screen
+		if (MatchState == s_MatchEndPodium) { // Game over, Podium Screen
 			if (isPredictedFavourite && WinningTeam == LocalTeam123 && GoalDifference > 0) {
 				if (rndNumber == 1) Commentary = "I predicted you to win, somehow you managed it...";
 				if (rndNumber == 2) Commentary = "I predicted you to win, I still don't understand how?!?";
@@ -489,18 +515,20 @@ void matchodds::GetCurrentScore(std::string eventName, int TeamNum) {
 	if (!gameWrapper->IsInOnlineGame() && !gameWrapper->IsInReplay()) return;
 
 	//TODO: GoalMMR should be dynamic based on Team Size "a 3 goal advantage is more significant in 3v3 vs 1v1" thanks DrStein#6280 for the suggestion
-	int GoalMMR = 200; // How  much to add on for a goal
+	int GoalMMR = 150; // How  much to add on for a goal
 	int TimeMMR1 = 0;
 	int TimeMMR2 = 0;
 	GoalDifference = 0;
 	WinningTeam = 0;
-
 	ServerWrapper onlineServer = gameWrapper->GetOnlineGame();
 	ArrayWrapper<TeamWrapper> localServerTeams = onlineServer.GetTeams();
 	for (TeamWrapper team : localServerTeams) {
 		if (team.GetTeamNum() == 0) TeamScore[1] = team.GetScore();
 		if (team.GetTeamNum() == 1) TeamScore[2] = team.GetScore();
 	}
+
+
+	MatchGUID = onlineServer.GetMatchGUID();
 
 	if (eventName == "Goal") { // Goal scored, got event from Stat tracker which is updated before the server for some reason?!? #whatisthisbullshit?
 		TeamScore[TeamNum]++;
@@ -512,12 +540,12 @@ void matchodds::GetCurrentScore(std::string eventName, int TeamNum) {
 	else if (TeamScore[1] > TeamScore[2]) { //Blue Winning
 		GoalDifference = TeamScore[1] - TeamScore[2];
 		WinningTeam = 1;
-		TimeMMR1 = static_cast<int>((getGameTimeElapsed() * GoalDifference) * 5);
+		TimeMMR1 = static_cast<int>((getGameTimeElapsed() * GoalDifference) * 10);
 	}
 	else if (TeamScore[2] > TeamScore[1]) { 	//Orange Winning
 		WinningTeam = 2;
 		GoalDifference = TeamScore[2] - TeamScore[1];
-		TimeMMR2 = static_cast<int>((getGameTimeElapsed() * GoalDifference) * 5);
+		TimeMMR2 = static_cast<int>((getGameTimeElapsed() * GoalDifference) * 10);
 	}
 
 	//Goals count for Extra MMR
@@ -536,8 +564,7 @@ void matchodds::UpdateTeamTotal() {
 }
 
 int matchodds::GetTeamTotal(int TeamNumber) {
-	if (TeamNumber == 1) return TeamTotal[1];
-	if (TeamNumber == 2) return TeamTotal[2];
+	 return TeamTotal[TeamNumber];
 }
 
 void matchodds::UpdateTotalMMR(int Team1, int Team2) {
@@ -564,7 +591,11 @@ ServerWrapper matchodds::GetCurrentServer()
 }
 
 void matchodds::MatchUnload(std::string eventName) {
-	OldmatchGUID = matchGUID;
+	MatchState = s_MatchEnd;
+	isMatchEnded = true;
+	isOvertime = false;
+	capturedPredictedFavourite = false;
+	ClearStats();
 }
 
 void matchodds::MatchEnded(std::string eventName) { // Triggered at the very end of the game
@@ -572,13 +603,35 @@ void matchodds::MatchEnded(std::string eventName) { // Triggered at the very end
 	//cvarManager->log("Match Ended " + eventName);
 	isMatchEnded = true;
 	isOvertime = false;
+	capturedPredictedFavourite = false;
+	ClearStats();
+
+
+}
+void matchodds::ClearStats() {
 	GoalDifference = 0;
 	WinningTeam = 0;
-	Commentary = "";
+	//Commentary = "";
+	//capturedPredictedFavourite = false;
 	isPredictedFavourite = false;
 	lastGoalScoredBy = 0;
-
-
+	TeamTotal[3] = {};
+	TeamTotalExtras[3] = {};
+	TeamScore[3] = {};
+	TeamBaselineMMR[3] = {};
+	TeamTotal[0] = 1;
+	TeamTotal[1] = 1;
+	TeamTotal[2] = 1;
+	TeamBaselineMMR[0] = 1;
+	TeamBaselineMMR[1] = 1;
+	TeamBaselineMMR[2] = 1;
+	//TeamTotalExtras[0] = 1;
+	//TeamTotalExtras[1] = 1;
+	//TeamTotalExtras[2] = 1;
+	TotalMMR = 0;
+	PlayerCount = 0;
+	PlayerMMRCaptured = 0;
+	StarPlayerName = "";
 }
 void matchodds::RoundEnded(std::string eventName) { // Triggered after a goal is scored?
 	MatchStates MatchState = s_InMatch;
@@ -586,33 +639,25 @@ void matchodds::RoundEnded(std::string eventName) { // Triggered after a goal is
 	//cvarManager->log("Round Ended: " + eventName);
 }
 void matchodds::MatchStarted(std::string eventName) { // Triggered at the very start?
-	
+	isMatchEnded = false;
 	 MatchState = s_PreMatch;
+	 ClearStats();
 	//cvarManager->log("Match Started " + eventName);
 	if (!gameWrapper->IsInOnlineGame()) {
+		GetCurrentScore();
+		UpdateTeamTotal();
 		(*cl_commentarytype == "default") ? GetCommentary("GameUpdated") : GetToxicCommentary("GameUpdated");
 		return;
 	}
-
-	//CallBackTimer ctimer; // Setup Timer
-	//ctimer.stop(); //Stop if it's running
-	//const std::string prompt_message = "-------User Prompt-------\n";
-	// ctimer.start(2000, [prompt_message]() {
-	//	//GetCommentary();
- //  });
-
-	//ctimer.start(2000, [prompt_message]() {
-	//std::cout << prompt_message << std::endl;
-   //});
-
 	
 }
 void matchodds::GameUpdated(std::string eventName) { // fires every 'tick'
 	if (!gameWrapper->IsInOnlineGame()) return;
 	tmpCounter++;
-	if (tmpCounter == 10000) { // if nothing has happened in the game for a while, update things!
+	if (tmpCounter == 1000) { // Update % ever 1s
+		GetCurrentScore();
 		UpdateTeamTotal();
-		(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
+		//(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
 		tmpCounter = 0;
 	}
 }
@@ -620,77 +665,115 @@ void matchodds::GameUpdated(std::string eventName) { // fires every 'tick'
 void matchodds::itsOvertime(std::string eventName) { // Triggered when Overtime is started
 	 MatchState = s_Overtime;
 	 isOvertime = true;
+	 CalculateMVP();
 	 (*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
 }
-void matchodds::RoundStarted(std::string eventName) { // Triggered when a goal is scored...
-	//cvarManager->log("Round Started " + eventName);
+void matchodds::RoundStarted(std::string eventName) { 
+	cvarManager->log("Round Started " + eventName);
 	 MatchState = s_InMatch;
 	isMatchEnded = false;
-	TeamTotalExtras[1] = 0;
-	TeamTotalExtras[2] = 0;
-	Commentary = "";
+	//ClearStats();
+	//CalculateMMR("");
+	UpdateTeamTotal();
 	GetCurrentScore();
+	//CalculateMVP();
+	(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
+
+}void matchodds::BeginState(std::string eventName) {
+	cvarManager->log("BeginState " + eventName);
+	 MatchState = s_InMatch;
+	isMatchEnded = false;
+	//ClearStats();
+	//CalculateMMR("");
+	UpdateTeamTotal();
+	GetCurrentScore();
+	CalculateMVP();
+	(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
+}
+void matchodds::CountdownStarted(std::string eventName) {
+	cvarManager->log("CountdownStarted " + eventName);
+	MatchState = s_InMatch;
+	isMatchEnded = false;
+	//ClearStats();
+	CalculateMMR("");
+	UpdateTeamTotal();
+	GetCurrentScore();
+	CalculateMVP();
+	(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
+}void matchodds::CountdownEnded(std::string eventName) {
+	cvarManager->log("CountdownEnded " + eventName);
+	MatchState = s_InMatch;
+	isMatchEnded = false;
+	//ClearStats();
+	CalculateMMR("");
+	UpdateTeamTotal();
+	GetCurrentScore();
+	//CalculateMVP();
 	(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
 }
 void matchodds::EndGameHighlights(std::string eventName) {
 	 MatchState = s_MatchEndReplay;
-	 (*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
+	 ClearStats();
+	 //(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
 	 GoalDifference = 0;
 	 WinningTeam = 0;
 }
 void matchodds::PodiumMode(std::string eventName) {
 	MatchState = s_MatchEndPodium;
 	(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
-	//GoalDifference = 0;
-	//WinningTeam = 0;
 }
 
 
 
 
-void matchodds::CalculateStats(std::string eventName)
+void matchodds::CalculateMMR(std::string eventName)
 {
 	if (!(*bEnabled)) return;
 	if (!gameWrapper->IsInOnlineGame()) return;
+	//if (!gameWrapper->IsInOnlineGame() && !gameWrapper->IsInReplay()) return;
 	
-	ServerWrapper server = GetCurrentServer();
-	//cvarManager->log("Online Game");
-	int tmpTeamTotal[2] = {1,1 };
-	long tmpHighestMVP = 0;
-	tmpHighestMMR = 0;
-	StarPlayerName = "";
-	tmpTeamTotal[0] = 0;
-	tmpTeamTotal[1] = 0;
-	LocalTeam123 = 0;
-	MMRWrapper mw = gameWrapper->GetMMRWrapper();
-	ArrayWrapper<PriWrapper> pris = server.GetPRIs();
 
-	int len = pris.Count();
-	PlayerCount = static_cast<int>(server.GetMaxTeamSize() * 2);
+		ServerWrapper server = GetCurrentServer();
+		//cvarManager->log("Online Game");
+		int tmpTeamTotal[2] = { 1,1 };
+		tmpHighestMMR = 0;
+		StarPlayerName = "";
+		//ClearStats();
+		tmpTeamTotal[0] = 0;
+		tmpTeamTotal[1] = 0;
+		//TeamBaselineMMR[1] = 0;
+		//TeamBaselineMMR[2] = 0;
+		LocalTeam123 = 0;
+		MMRWrapper mw = gameWrapper->GetMMRWrapper();
+		ArrayWrapper<PriWrapper> pris = server.GetPRIs();
 
-	char tmpGetTeamIndex;
-	if (len < 1) return;
+		int len = pris.Count();
+		PlayerCount = static_cast<int>(server.GetMaxTeamSize() * 2);
 
-	PriWrapper localPlayer = GetLocalPlayerPRI();
-	if (!localPlayer) return;
-	if (localPlayer.GetTeamNum() == 0) LocalTeam123 = 1;
-	if (localPlayer.GetTeamNum() == 1) LocalTeam123 = 2;
-	PlayerMMRCaptured = 0;
-	long tmpMMR;
-	int tmpMVP;
-	tmpMVP = 0;
-	tmpMMR = 0;
-	std::string playerName;
-	for (int i = 0; i < len; i++)
-	{
-		PriWrapper player = pris.Get(i);
-		tmpGetTeamIndex = player.GetTeamNum();
-		playerName = player.GetPlayerName().ToString();
+		char tmpGetTeamIndex;
+		if (len < 1) return;
+
+		PriWrapper localPlayer = GetLocalPlayerPRI();
+		if (!localPlayer) return;
+		if (localPlayer.GetTeamNum() == 0) LocalTeam123 = 1;
+		if (localPlayer.GetTeamNum() == 1) LocalTeam123 = 2;
+		PlayerMMRCaptured = 0;
+		long tmpMMR;
+
+		tmpMMR = 0;
 		
-		//if (gameWrapper->GetMMRWrapper().IsSynced(uniqueID, userPlaylist) && !gameWrapper->GetMMRWrapper().IsSyncing(uniqueID)) {
+		std::string playerName;
+		for (int i = 0; i < len; i++)
+		{
+			PriWrapper player = pris.Get(i);
+			tmpGetTeamIndex = player.GetTeamNum();
+			playerName = player.GetPlayerName().ToString();
+
+			//if (gameWrapper->GetMMRWrapper().IsSynced(uniqueID, userPlaylist) && !gameWrapper->GetMMRWrapper().IsSyncing(uniqueID)) {
 			tmpMMR = gameWrapper->GetMMRWrapper().GetPlayerMMR(
 				pris.Get(i).GetUniqueIdWrapper(),
 				gameWrapper->GetMMRWrapper().GetCurrentPlaylist());
+			if (tmpMMR == 600) return;
 			if (tmpMMR > 1) {
 				PlayerMMRCaptured++;
 				if (std::to_string(tmpGetTeamIndex) == "0") {
@@ -701,8 +784,7 @@ void matchodds::CalculateStats(std::string eventName)
 					tmpTeamTotal[1] += tmpMMR;
 				}
 			}
-			TeamBaselineMMR[1] = tmpTeamTotal[0];
-			TeamBaselineMMR[2] = tmpTeamTotal[1];
+			
 			// Keep track of highest MMR player (Star Player)
 			if (tmpMMR >= tmpHighestMMR)
 			{
@@ -710,23 +792,49 @@ void matchodds::CalculateStats(std::string eventName)
 				StarPlayerName = playerName; // The name of the player
 			}
 
-			
-			
-		//}
-		
-		// Keep track of highest Score (MVP)
-		tmpMVP = player.GetMatchScore();
-		if (tmpMVP >= tmpHighestMVP)
-		{
-			tmpHighestMVP = tmpMVP; // # of MMR the player has
-			MVPPlayerName = playerName; // The name of the player
+
 		}
+		TeamBaselineMMR[1] = tmpTeamTotal[0];
+		TeamBaselineMMR[2] = tmpTeamTotal[1];
+		//GetCurrentScore();
+		if (eventName != "") UpdateTeamTotal();
+		//UpdateTeamTotal();
 
-	}
-	//GetCurrentScore();
-	UpdateTeamTotal();
+		//cvarManager->log(tmpMMRDebugText1 + "  " + tmpMMRDebugText2);
+	
+}
+void matchodds::CalculateMVP()
+{
+	if (!(*bEnabled)) return;
+	//if (!gameWrapper->IsInOnlineGame()) return;
+	
+		ServerWrapper server = GetCurrentServer();
+		long tmpHighestMVP = 0;
 
-	//cvarManager->log("Finished Calc Stats");
+		ArrayWrapper<PriWrapper> pris = server.GetPRIs();
+
+		int len = pris.Count();
+		if (len < 1) return;
+		
+		int tmpMVP;
+		tmpMVP = 0;
+		
+		std::string playerName;
+		for (int i = 0; i < len; i++)
+		{
+			PriWrapper player = pris.Get(i);
+			playerName = player.GetPlayerName().ToString();
+
+			// Keep track of highest Score (MVP)
+			tmpMVP = player.GetMatchScore();
+			if (tmpMVP >= tmpHighestMVP)
+			{
+				tmpHighestMVP = tmpMVP; // # of MMR the player has
+				MVPPlayerName = playerName; // The name of the player
+			}
+
+		}
+		
 }
 
 int matchodds::getGameTime()
@@ -789,23 +897,26 @@ void matchodds::LoadImgs() // Load up the images used to display ingame
 	std::wstring tmpWide(gameWrapper->GetDataFolderW());
 	std::string tmpDataDir(tmpWide.begin(), tmpWide.end());
 
-	//star = std::make_shared<ImageWrapper>(tmpDataDir + "\\matchodds\\star.png", true);
+	star = std::make_shared<ImageWrapper>(tmpDataDir + "\\matchodds\\star.png", true);
 	dice = std::make_shared<ImageWrapper>(tmpDataDir + "\\matchodds\\dice.png", true);
 	//percentage = std::make_shared<ImageWrapper>(tmpDataDir + "\\matchodds\\percentage.png", true);
 	commentator = std::make_shared<ImageWrapper>(tmpDataDir + "\\matchodds\\commentator.png", true);
-	
-	//star->LoadForCanvas();
+
+	star->LoadForCanvas();
 	dice->LoadForCanvas();
 	//percentage->LoadForCanvas();
 	commentator->LoadForCanvas();
+
 }
 
 void matchodds::Render(CanvasWrapper canvas)
 {
 	if (!(*bEnabled)) return; // Don't display if the plugin is disabled...
 	if (gameWrapper->IsInOnlineGame() == 1 || gameWrapper->IsInReplay() == 1) { //Display if user is in an online game (Casual, Ranked, Tournament)
-		//if (gameWrapper->IsInFreeplay()) return; // Exclude Freeplay
+		if (TeamBaselineMMR[1] == 1) return;
+		if (TeamBaselineMMR[2] == 1) return;
 		if (StarPlayerName == "") return; //Only render if we have some MMR data
+		if (getGameTime() >= getMaxGameTime())  return; // Hotfix: Don't display inaccurate data at the very start of games (if you play multiple games in a row things get messed up...)
 		int ScreenY = gameWrapper->GetScreenSize().Y;
 		float CommentatorImageScale;
 		float DiceImageScale;
@@ -835,10 +946,14 @@ void matchodds::Render(CanvasWrapper canvas)
 		canvas.SetColor(LinearColor{ 255, 255, 255, 255 }); // White
 
 		if (isMatchEnded == false && *bPercentagesEnabled) { // Render Win %
+			
 			//int ScreenWidthX = gameWrapper->GetScreenSize().X;
 			
 			Vector2 imagePosTeam0 = { (canvas.GetSize().X / 2) - (320 + XScale), 15 }; // Position for the 'dice' image next to the scoreboard
 			Vector2 imagePosTeam1 = { (canvas.GetSize().X / 2) + (260 + XScale), 15 };
+
+			Vector2 starPosTeam0 = { (canvas.GetSize().X / 2) - (340 + XScale), 15 }; // Position for the 'star' image next to the %
+			Vector2 starPosTeam1 = { (canvas.GetSize().X / 2) + (320 + XScale), 15 };
 
 			Vector2 textPosTeam0 = { (canvas.GetSize().X / 2) - (250 + XScale), 30 }; // Position for the '%' figure next to the scoreboard
 			Vector2 textPosTeam1 = { (canvas.GetSize().X / 2) + (200 + XScale), 30 };
@@ -869,6 +984,29 @@ void matchodds::Render(CanvasWrapper canvas)
 			tmpPercentage2 = static_cast<int>(floor(tmpPercentage * 100)); // Turn in to a % and round down, this avoids the weirdness of a 51% v 50% prediction...
 
 			canvas.DrawString(std::to_string(tmpPercentage2) + "%", 1.9, 1.9, 0);
+
+
+				if (LocalTeam123 == 1) {
+					if (TeamBaselineMMR[1] > TeamBaselineMMR[2]) {
+						canvas.SetPosition(starPosTeam0);
+						canvas.DrawTexture(star.get(), DiceImageScale); // Draw the 'dice' image to the screen
+					}
+					else {
+						canvas.SetPosition(starPosTeam1);
+						canvas.DrawTexture(star.get(), DiceImageScale); // Draw the 'dice' image to the screen
+					}
+				}
+				else {
+					if (TeamBaselineMMR[2] > TeamBaselineMMR[1]) {
+						canvas.SetPosition(starPosTeam0);
+						canvas.DrawTexture(star.get(), DiceImageScale); // Draw the 'dice' image to the screen
+					}
+					else {
+						canvas.SetPosition(starPosTeam1);
+						canvas.DrawTexture(star.get(), DiceImageScale); // Draw the 'dice' image to the screen
+					}
+				}
+			
 		}
 
 		if (*bCommentaryEnabled) {
@@ -903,14 +1041,15 @@ void matchodds::Render(CanvasWrapper canvas)
 			canvas.DrawTexture(commentator.get(), (CommentatorImageScale * 2));
 		}
 
-		
 		// Debug Text
-		//Vector2 tmpDebugPosition = { 500, ScreenY - 100 };
-		//canvas.SetPosition(tmpDebugPosition);
-		//tmpDebugString = "Local: " + std::to_string(LocalTeam123) + " T1T " + std::to_string(GetTeamTotal(1)) + " T2T " + std::to_string(GetTeamTotal(2)) + " MMRT " + std::to_string(TotalMMR) + " Score " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]) + " : " + std::to_string(WinningTeam) + "|" + std::to_string(lastGoalScoredBy);
+		Vector2 tmpDebugPosition = { 400, ScreenY - 100 };
+		canvas.SetPosition(tmpDebugPosition);
+		tmpDebugString = "Local: " + std::to_string(LocalTeam123) + " T1T " + std::to_string(TeamTotal[1]) + " T2T " + std::to_string(TeamTotal[2]) + " MMRT " + std::to_string(TotalMMR) + " Score " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]);
+		tmpDebugString = tmpDebugString + " TBMMR1: " + std::to_string(TeamBaselineMMR[1]) + " TBMMR2 " + std::to_string(TeamBaselineMMR[2]) + " TTe1 " + std::to_string(TeamTotalExtras[1]) + " TTe2 " + std::to_string(TeamTotalExtras[2]);
 		//tmpDebugString = "Lang " + std::to_string(rndNumber);
-		//canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
+		canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
 		}
+
 	}
 
 
