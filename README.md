@@ -9,6 +9,7 @@
 - Works in Casual, Competitive and Tournaments
 - Displays if you are favorites or the underdogs throughout the game
 - Displays the win chance of each team throughout the game (updated on each goal)
+- Indicates the initial favorite team throughout the game
 - Displays the 'Star Player' _(Player with the highest MMR)_
 - Dynamic Commentary based on how your team is performing
 - Toxic commentary if you're feeling brave...
