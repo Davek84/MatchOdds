@@ -19,6 +19,8 @@ private:
 	std::shared_ptr<int> cl_dice_imagescale;
 	std::shared_ptr<std::string> cl_commentarytype;
 
+	std::unique_ptr<MMRNotifierToken> notifierToken;
+
 	int rndNumber = 1;
 	int tmpCounter = 0;
 	int TeamTotal[3] = { };
@@ -87,6 +89,7 @@ public:
 	void CountdownEnded(std::string eventName);
 	void BeginState(std::string eventName);
 	void itsOvertime(std::string eventName);
+	void MMRUpdate(UniqueIDWrapper uniqueID);
 	void LoadImgs();
 	void ClearStats();
 	std::shared_ptr<ImageWrapper> star;
