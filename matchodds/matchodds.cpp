@@ -8,7 +8,7 @@
 #define LINMATH_H
 long tmpCount = 0;
 
-BAKKESMOD_PLUGIN(matchodds, "Shows win percentages + commentary throughout the game.", "1.6", 0x0);
+BAKKESMOD_PLUGIN(matchodds, "Shows win percentages + commentary throughout the game.", "1.6.1", 0x0);
 // ============================================================================
 // MatchOdds
 // by Civilian360
@@ -218,7 +218,7 @@ void::matchodds::GetCommentary(std::string eventName) {
 				isPredictedFavourite = false;
 			}
 		}
-		if (getGameTime() > (getMaxGameTime() - 10)) { // Very Start of the game so store the predicted favourites
+		if (getGameTime() > (getMaxGameTime() - 20)) { // Very Start of the game so store the predicted favourites
 			if (isFavourite == true) {
 				if (rndNumber == 1) Commentary = "You are the favorites!  Star Player: " + StarPlayerName;
 				if (rndNumber == 2) Commentary = "You're the favorites!  Star Player: " + StarPlayerName;
@@ -228,9 +228,9 @@ void::matchodds::GetCommentary(std::string eventName) {
 				if (rndNumber == 2) Commentary = "You're the underdogs.  Star Player: " + StarPlayerName;
 			}
 		}
-		else if (getGameTime() > 260 && getGameTime() < 291) { // Start of game (if it's the standard 5 min match)
+		else if (getGameTime() > 260 && getGameTime() < 281) { // Start of game (if it's the standard 5 min match)
 			Commentary = "...";
-			if (isFavourite && isPredictedFavourite && GoalDifference > 0) Commentary = "You are still the favorites!  One to watch: " + StarPlayerName;
+			if (isFavourite && isPredictedFavourite && GoalDifference > 0) Commentary = "One to watch: " + StarPlayerName;
 			if (!isFavourite && isPredictedFavourite && GoalDifference > 0) Commentary = "Don't let it slip away...  One to watch: " + StarPlayerName;
 			if (isFavourite && !isPredictedFavourite && GoalDifference > 0) Commentary = "You're doing great!!  One to watch: " + StarPlayerName;
 			if (!isFavourite && !isPredictedFavourite && GoalDifference > 0) Commentary = "Push a little harder.  One to watch: " + StarPlayerName;
@@ -331,6 +331,8 @@ void::matchodds::GetCommentary(std::string eventName) {
 	}
 	else {
 		Commentary = "";
+		// Mismatch in captured MMR vs. Playercount so try to get MMR again
+		//CalculateMMR("");
 	}
 	//if (MatchState == s_MatchEndReplay) Commentary = "Wasn't that fun? ^.^"; // TODO: Actually identify when user is on the post match screen
 }
@@ -362,33 +364,33 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 				isFavourite = false;
 			}
 		}
-			if (LocalTeam123 == 1) {
-				if (TeamBaselineMMR[1] > TeamBaselineMMR[2]) {
-					isPredictedFavourite = true;
-				}
-				else {
-					isPredictedFavourite = false;
-				}
+		if (LocalTeam123 == 1) {
+			if (TeamBaselineMMR[1] > TeamBaselineMMR[2]) {
+				isPredictedFavourite = true;
 			}
 			else {
-				if (TeamBaselineMMR[2] > TeamBaselineMMR[1]) {
-					isPredictedFavourite = true;
-				}
-				else {
-					isPredictedFavourite = false;
-				}
+				isPredictedFavourite = false;
 			}
-			if (getGameTime() > (getMaxGameTime() - 10)) { // Very Start of the game so store the predicted favourites
-			if (isFavourite == true) {
+		}
+		else {
+			if (TeamBaselineMMR[2] > TeamBaselineMMR[1]) {
+				isPredictedFavourite = true;
+			}
+			else {
+				isPredictedFavourite = false;
+			}
+		}
+		if (getGameTime() > (getMaxGameTime() - 20)) { // Very Start of the game so store the predicted favourites
+			if (isPredictedFavourite == true) {
 				if (rndNumber == 1) Commentary = "You're favorites, Don't f*ck this up you idiot...";
 				if (rndNumber == 2) Commentary = "You're favorites but you'll find a way to screw this up...";
 			}
-			else if (isFavourite == false) {
+			else if (isPredictedFavourite == false) {
 				if (rndNumber == 1) Commentary = "You're underdogs, You look like loser to me, FF now?";
 				if (rndNumber == 2) Commentary = "You're underdogs, I mean.. just look at you.. loser...";
 			}
 		}
-		else if (getGameTime() > 260 && getGameTime() < 291) { // Start of game (if it's the standard 5 min match)
+		else if (getGameTime() > 260 && getGameTime() < 281) { // Start of game (if it's the standard 5 min match)
 			Commentary = "...";
 			if (isFavourite && isPredictedFavourite && GoalDifference > 0) Commentary = "I'm surprised...  One to watch: " + StarPlayerName;
 			if (!isFavourite && isPredictedFavourite && GoalDifference > 0) Commentary = "Well you've f*cked this up haven't you?";
@@ -497,6 +499,8 @@ void::matchodds::GetToxicCommentary(std::string eventName) {
 	}
 	else {
 		Commentary = "";
+		// Mismatch in captured MMR vs. Playercount so try to get MMR again
+		//CalculateMMR("");
 	}
 	//if (MatchState == s_MatchEndReplay) Commentary = "Wasn't that fun? ^.^"; // TODO: Actually identify when user is on the post match screen
 }
@@ -512,7 +516,7 @@ void matchodds::onUnload()
 
 void matchodds::GetCurrentScore(std::string eventName, int TeamNum) {
 	if (!(*bEnabled)) return;
-	if (!gameWrapper->IsInOnlineGame() && !gameWrapper->IsInReplay()) return;
+	if (!gameWrapper->IsInOnlineGame()) return;
 
 	//TODO: GoalMMR should be dynamic based on Team Size "a 3 goal advantage is more significant in 3v3 vs 1v1" thanks DrStein#6280 for the suggestion
 	int GoalMMR = 150; // How  much to add on for a goal
@@ -639,6 +643,7 @@ void matchodds::RoundEnded(std::string eventName) { // Triggered after a goal is
 	//cvarManager->log("Round Ended: " + eventName);
 }
 void matchodds::MatchStarted(std::string eventName) { // Triggered at the very start?
+	if (gameWrapper->IsInReplay()) return;
 	isMatchEnded = false;
 	 MatchState = s_PreMatch;
 	 ClearStats();
@@ -657,7 +662,9 @@ void matchodds::GameUpdated(std::string eventName) { // fires every 'tick'
 	if (tmpCounter == 1000) { // Update % ever 1s
 		GetCurrentScore();
 		UpdateTeamTotal();
-		//(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
+		if (Commentary == "") {
+			(*cl_commentarytype == "default") ? GetCommentary() : GetToxicCommentary();
+		}
 		tmpCounter = 0;
 	}
 }
@@ -730,7 +737,7 @@ void matchodds::CalculateMMR(std::string eventName)
 {
 	if (!(*bEnabled)) return;
 	if (!gameWrapper->IsInOnlineGame()) return;
-	//if (!gameWrapper->IsInOnlineGame() && !gameWrapper->IsInReplay()) return;
+	if (gameWrapper->IsInReplay()) return;
 	
 
 		ServerWrapper server = GetCurrentServer();
@@ -759,7 +766,6 @@ void matchodds::CalculateMMR(std::string eventName)
 		if (localPlayer.GetTeamNum() == 1) LocalTeam123 = 2;
 		PlayerMMRCaptured = 0;
 		long tmpMMR;
-
 		tmpMMR = 0;
 		
 		std::string playerName;
@@ -768,7 +774,7 @@ void matchodds::CalculateMMR(std::string eventName)
 			PriWrapper player = pris.Get(i);
 			tmpGetTeamIndex = player.GetTeamNum();
 			playerName = player.GetPlayerName().ToString();
-
+			
 			//if (gameWrapper->GetMMRWrapper().IsSynced(uniqueID, userPlaylist) && !gameWrapper->GetMMRWrapper().IsSyncing(uniqueID)) {
 			tmpMMR = gameWrapper->GetMMRWrapper().GetPlayerMMR(
 				pris.Get(i).GetUniqueIdWrapper(),
