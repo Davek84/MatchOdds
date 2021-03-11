@@ -38,7 +38,7 @@ private:
 	std::string MVPPlayerName;
 	UniqueIDWrapper uniqueID;
 	bool drawCanvas, isEnabled, gotNewMMR, isPlacement;
-	int userPlaylist, userDiv, userTier, upperTier, lowerTier, upperDiv, lowerDiv, nextLower, beforeUpper;
+	//int userPlaylist, userDiv, userTier, upperTier, lowerTier, upperDiv, lowerDiv, nextLower, beforeUpper;
 	float userMMR = 0;
 	std::string nameCurrent, nameNext, nameBefore, nextDiff, beforeDiff;
 	bool isMatchEnded = true;
@@ -65,7 +65,10 @@ private:
 		s_Overtime,
 	};
 	MatchStates MatchState;
-
+	// MMR Notifications
+	std::unique_ptr<MMRNotifierToken> notifierToken;
+	float PlayerMMR[10]; //Stores the MMR received from the Notification Service
+	std::string PlayerUniqueID[10]; // Linked with PlayerMMR
 public:
 	int getGameTime();
 	int getMaxGameTime();
@@ -87,6 +90,9 @@ public:
 	void CountdownEnded(std::string eventName);
 	void BeginState(std::string eventName);
 	void itsOvertime(std::string eventName);
+	void MMRUpdate(UniqueIDWrapper uniqueID);
+	void ManualMMRUpdate(UniqueIDWrapper uniqueID, float MMR);
+	void ManualMMRCheck();
 	void LoadImgs();
 	void ClearStats();
 	std::shared_ptr<ImageWrapper> star;
