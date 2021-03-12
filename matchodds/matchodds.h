@@ -11,6 +11,7 @@ private:
 	std::shared_ptr<bool> bEnabled;
 	std::shared_ptr<bool> bCommentaryEnabled;
 	std::shared_ptr<bool> bPercentagesEnabled;
+	std::shared_ptr<bool> bOnlyOnScoreboard;
 	std::shared_ptr<bool> cl_commentator_override;
 	std::shared_ptr<int> cl_commentator_x;
 	std::shared_ptr<int> cl_commentator_y;
@@ -65,6 +66,7 @@ private:
 		s_Overtime,
 	};
 	MatchStates MatchState;
+	bool isScoreboardOpen;
 
 public:
 	int getGameTime();
@@ -87,6 +89,8 @@ public:
 	void CountdownEnded(std::string eventName);
 	void BeginState(std::string eventName);
 	void itsOvertime(std::string eventName);
+	void OpenScoreboard(std::string eventName);
+	void CloseScoreboard(std::string eventName);
 	void LoadImgs();
 	void ClearStats();
 	std::shared_ptr<ImageWrapper> star;
