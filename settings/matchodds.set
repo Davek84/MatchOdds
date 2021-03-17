@@ -11,8 +11,11 @@ MatchOdds Plugin
 5|Commentator Img Scale|cl_commentator_imagescale|0|100
 5|Dice Img Scale|cl_dice_imagescale|0|100
 8|
-9|Other
+9|Commentary Options
 6|Commentary Type|cl_commentarytype|Default@default&Toxic@Toxic
+8|
+9|Other
+1|Display % only on Scoreboard?|matchodds_onlyonscoreboard
 8|
 8|
 9|Any bugs/issues contact me on Discord: Civilian360#9819

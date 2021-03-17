@@ -1037,12 +1037,12 @@ void matchodds::Render(CanvasWrapper canvas)
 	}
 
 	//// Debug Text
-	//Vector2 tmpDebugPosition = { 400, 1000 };
-	//canvas.SetPosition(tmpDebugPosition);
-	//std::string tmpDebugString;
-	//tmpDebugString = "Local: " + std::to_string(LocalTeam123) + " T1T " + std::to_string(TeamTotal[1]) + " T2T " + std::to_string(TeamTotal[2]) + " MMRT " + std::to_string(TotalMMR) + " Score " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]);
-	//tmpDebugString = tmpDebugString + " TBMMR1: " + std::to_string(TeamBaselineMMR[1]) + " TBMMR2 " + std::to_string(TeamBaselineMMR[2]) + " TTe1 " + std::to_string(TeamTotalExtras[1]) + " TTe2 " + std::to_string(TeamTotalExtras[2]);
-	//canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);
+	/*Vector2 tmpDebugPosition = { 400, 1000 };
+	canvas.SetPosition(tmpDebugPosition);
+	std::string tmpDebugString;
+	tmpDebugString = "Local: " + std::to_string(LocalTeam123) + " T1T " + std::to_string(TeamTotal[1]) + " T2T " + std::to_string(TeamTotal[2]) + " MMRT " + std::to_string(TotalMMR) + " Score " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]);
+	tmpDebugString = tmpDebugString + " TBMMR1: " + std::to_string(TeamBaselineMMR[1]) + " TBMMR2 " + std::to_string(TeamBaselineMMR[2]) + " TTe1 " + std::to_string(TeamTotalExtras[1]) + " TTe2 " + std::to_string(TeamTotalExtras[2]);
+	canvas.DrawString("DEBUG: " + tmpDebugString, 1, 1, 1);*/
 
 
 }
