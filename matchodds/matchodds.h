@@ -72,6 +72,7 @@ public:
 	int getGameTime();
 	int getMaxGameTime();
 	int getGameTimeElapsed();
+	std::string trimName(std::string str);
 	void GetCurrentScore(std::string eventName = "", int TeamNum = -1);
 	void onLoad() override;
 	void onUnload() override;
@@ -97,7 +98,7 @@ public:
 	std::shared_ptr<ImageWrapper> dice;
 	//std::shared_ptr<ImageWrapper> percentage;
 	std::shared_ptr<ImageWrapper> commentator;
-	
+
 	void CalculateMMR(std::string eventName);
 	void CalculateMVP();
 	void MatchUnload(std::string eventName);
@@ -105,12 +106,12 @@ public:
 	void UpdateTeamTotal();
 	void UpdateTotalMMR(int Team1, int Team2);
 	int GetTeamTotal(int TeamNumber);
-	void GetCommentary(std::string eventName = "");
-	void GetToxicCommentary(std::string eventName = "");
+	void GetCommentary(std::string eventName = "", std::string playerName = "");
+	void GetToxicCommentary(std::string eventName = "", std::string playerName = "");
 
 	ServerWrapper GetCurrentServer();
 	PriWrapper GetLocalPlayerPRI();
-	
+
 	//int unranker(int mode, int rank, int div, bool upperLimit);
 	//DivisionData GetDivisionData(Playlist mode, Rank rank, int div);
 	//void DebugGetDivisionData(std::vector<std::string> args);
