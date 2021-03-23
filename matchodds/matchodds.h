@@ -17,11 +17,16 @@ private:
 	std::shared_ptr<int> cl_commentator_y;
 	std::shared_ptr<int> cl_commentator_textscale;
 	std::shared_ptr<int> cl_commentator_imagescale;
+	std::shared_ptr<bool> cl_percentage_override;
+	std::shared_ptr<int> cl_percentageoffset_x;
+	std::shared_ptr<int> cl_percentageoffset_y;
+	std::shared_ptr<int> cl_percentage_textscale;
 	std::shared_ptr<int> cl_dice_imagescale;
 	std::shared_ptr<std::string> cl_commentarytype;
 
 	int rndNumber = 1;
 	int tmpCounter = 0;
+	int CommentaryCounter = 0;
 	int TeamTotal[3] = { };
 	int TeamTotalExtras[3] = { };
 	int TeamScore[3] = { };
@@ -67,6 +72,7 @@ private:
 	};
 	MatchStates MatchState;
 	bool isScoreboardOpen;
+
 
 public:
 	int getGameTime();

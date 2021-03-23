@@ -15,6 +15,8 @@
 - Toxic commentary if you're feeling brave...
 
 ## Versions
+- 1.8 - Much more dynamic commentary!
+- 1.7 - Ability to show %s only when viewing the scoreboard.
 - 1.6 - Display a Star for the favorite team, tweaks to % calculation + updates more frequently in game, bug fixes.
 - 1.5 - Toxic Commentary Added! (Warning: It is brutal), improved the settings page.
 ![MatchOdds Settings!](https://i.imgur.com/DNrhdGm.png "MatchOdds Settingst")
