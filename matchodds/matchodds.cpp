@@ -557,112 +557,272 @@ void::matchodds::GetToxicCommentary(std::string eventName, std::string playerNam
 		}
 		if (getGameTime() > (getMaxGameTime() - 20)) { // Very Start of the game so store the predicted favourites
 			if (isPredictedFavourite == true) {
-				if (rndNumber == 1) Commentary = "You're favorites, Don't f*ck this up you idiot...";
-				if (rndNumber == 2) Commentary = "You're favorites but you'll find a way to screw this up...";
+				srand(getGameTime());
+				rndNumber = (rand() % 4 + 1);
+
+					if (rndNumber == 1) Commentary = "You're favorites, Don't f*ck this up you idiot...";
+					if (rndNumber == 2) Commentary = "You're favorites but you'll find a way to screw this up...";
+					if (rndNumber == 3) Commentary = "The stats might be in your favor, but I hate you...";
+					if (rndNumber == 4) Commentary = "This should be easy, just like your mom";
+
 			}
 			else if (isPredictedFavourite == false) {
-				if (rndNumber == 1) Commentary = "You're underdogs, You look like loser to me, FF now?";
-				if (rndNumber == 2) Commentary = "You're underdogs, I mean.. just look at you.. loser...";
+				srand(getGameTime());
+				rndNumber = (rand() % 4 + 1);
+					if (rndNumber == 1) Commentary = "You're underdogs, You look like loser to me, FF now?";
+					if (rndNumber == 2) Commentary = "You're underdogs, I mean.. just look at you.. loser...";
+					if (rndNumber == 3) Commentary = "The odds are against you and so am I!";
+					if (rndNumber == 4) Commentary = "It's going to be tough, like watching you try to run 100m, fatty!";
+
 			}
 		}
 		else if (getGameTime() > 260 && getGameTime() < 281) { // Start of game (if it's the standard 5 min match)
 			Commentary = "...";
-			if (isFavourite && isPredictedFavourite && GoalDifference > 0) Commentary = "I'm surprised...  One to watch: " + StarPlayerName;
+
+			if (isFavourite && isPredictedFavourite && GoalDifference > 0) Commentary = "I'm surprised...";
 			if (!isFavourite && isPredictedFavourite && GoalDifference > 0) Commentary = "Well you've f*cked this up haven't you?";
 			if (isFavourite && !isPredictedFavourite && GoalDifference > 0) Commentary = "Maybe you can win back your mothers love by winning at RL?";
 			if (!isFavourite && !isPredictedFavourite && GoalDifference > 0) Commentary = "You should have been aborted...";
+
 		}
 		else if (getGameTime() > 120 && getGameTime() < 261) { // Mid Game
 			if (isFavourite == true) Commentary = "...";
 			if (isFavourite == false) Commentary = "...";
 		}
 		else if (getGameTime() > 60 && getGameTime() < 121) {
-			Commentary = "...";
-			if (isFavourite && isPredictedFavourite) Commentary = "Somehow you're still favorites, not to your parents though...";
-			if (!isFavourite && isPredictedFavourite) Commentary = "Current MVP: " + MVPPlayerName;
-			if (isFavourite && !isPredictedFavourite) Commentary = "You're going to choke!  Current MVP: " + MVPPlayerName;
-			if (!isFavourite && !isPredictedFavourite) Commentary = "Loser!";
+			if (MVPPlayerName.length() > 1) {
+				if (isFavourite && isPredictedFavourite) Commentary = "Somehow you're still favorites, not to your parents though...";
+				if (!isFavourite && isPredictedFavourite) Commentary = "We all hate you...";
+				if (isFavourite && !isPredictedFavourite) Commentary = "You're going to choke!  Current MVP: " + MVPPlayerName;
+				if (!isFavourite && !isPredictedFavourite) Commentary = "Loser!";
+			}
+			else {
+				if (isFavourite && isPredictedFavourite) Commentary = "Somehow you're still favorites, not to your parents though...";
+				if (!isFavourite && isPredictedFavourite) Commentary = "Idiot!";
+				if (isFavourite && !isPredictedFavourite) Commentary = "You're going to choke!";
+				if (!isFavourite && !isPredictedFavourite) Commentary = "Loser!";
+			}
 		}
-		else if (getGameTime() > 1 && getGameTime() < 61) { // Final minute
+		else if (getGameTime() > 10 && getGameTime() < 61) { // Final minute
 			Commentary = "...";
 			if (isFavourite && isPredictedFavourite) Commentary = "Choke choke choke choke!";
 			if (!isFavourite && isPredictedFavourite) Commentary = "What a dissapointment you've turned out to be";
 			if (isFavourite && !isPredictedFavourite) Commentary = "You'll f*ck this up!";
 			if (!isFavourite && !isPredictedFavourite) Commentary = "...";
 		}
+		else if (getGameTime() < 10) { // Final seconds
+			Commentary = "";
+		}
 		//if (MatchState == s_MatchEndPodium) { // Game over, Podium Screen
 		//	if (isPredictedFavourite && WinningTeam == LocalTeam123 && GoalDifference > 0) {
-		//		if (rndNumber == 1) Commentary = "I predicted you to win, somehow you managed it...";
-		//		if (rndNumber == 2) Commentary = "I predicted you to win, I still don't understand how?!?";
-		//	}
-		//	else if (isPredictedFavourite && WinningTeam != LocalTeam123 && GoalDifference > 0) { // Losing/lost
-		//		if (rndNumber == 1) Commentary = "You bombed hard!";
-		//		if (rndNumber == 2) Commentary = "GG EZ";
-		//	}
-		//	else if (isPredictedFavourite == false && WinningTeam == LocalTeam123 && GoalDifference > 0) {
-		//		if (rndNumber == 1) Commentary = "Wow! The one thing you're good at, hitting a ball with a car... *slow claps*";
-		//		if (rndNumber == 2) Commentary = "I feel the other team took pity on you...";
-		//	}
-		//	else if (isPredictedFavourite == false && WinningTeam != LocalTeam123 && GoalDifference > 0) {
+		//		if (rndNumber == 1) Commentary = "I predicted a win for you and you delivered! Good job!";
+		//		if (rndNumber == 2) Commentary = "I predicted a win for you and you delivered! Well done!";
+		//	} else if (isPredictedFavourite && WinningTeam != LocalTeam123 && GoalDifference > 0) { // Losing/lost
+		//		if (rndNumber == 1) Commentary = "What happened?!? I had you down as favorites!";
+		//		if (rndNumber == 2) Commentary = "I had you down as favorites! Where did it all go wrong?";
+		//	} else if (isPredictedFavourite == false && WinningTeam == LocalTeam123 && GoalDifference > 0) {
+		//		if (rndNumber == 1) Commentary = "Wow! Well done! You defied the odds and won that one!";
+		//		if (rndNumber == 2) Commentary = "Great work! You defied the odds and won that one!";
+		//	} else if (isPredictedFavourite == false && WinningTeam != LocalTeam123 && GoalDifference > 0) {
 		//		//Commentary = "Well.. it's the taking part that counts...";
 		//	}
-		//	/*else if (GoalDifference == 0) {
-		//		Commentary = "Here comes the overtime...";
-		//	}*/
-
 		//}
 
 		if (isFavourite == true) CommentaryColour = { 150,200,150,255 }; // Green
-		if (isFavourite == false) CommentaryColour = CommentaryColour = { 255,150,150,255 }; // Red?
-		CommentatorColour = { 255,100,100,255 }; // Red?
+		if (isFavourite == false) CommentaryColour = { 255,150,150,255 }; // Red?
+		CommentatorColour = { 255,255,255,255 }; // White
 
-		if (eventName == "Goal") {
+		if (isOvertime) { //TODO: Add # of shots for each team , super handy to see during Overtime in a tournament!
+			srand(getGameTime());
+			rndNumber = (rand() % 4 + 1);
+			if (isFavourite == true) {
+				if (rndNumber == 1) Commentary = "The pressure will break you";
+				if (rndNumber == 2) Commentary = "Choke choke choke choke!";
+				if (rndNumber == 3) Commentary = "You're going to f*ck this up you know...";
+				if (rndNumber == 4) Commentary = "Overtime! It's all fun and games until someone looks at your face";
+			}
+			else if (isFavourite == false) {
+				if (rndNumber == 1) Commentary = "You're gonna lose this";
+				if (rndNumber == 2) Commentary = "Just give up now...";
+				if (rndNumber == 3) Commentary = "They will score, we all know it";
+				if (rndNumber == 4) Commentary = "I'm ashamed of you...";
+			}
+		}
+
+		/*if (eventName == "Epic Save") {
+			srand(getGameTime());
+			rndNumber = (rand() % 4 + 1);
+			if (playerName.length() > 1) {
+				if (rndNumber == 1) Commentary = "What a save by " + playerName + "!!";
+				if (rndNumber == 2) Commentary = "Wow! " + playerName + " kept that one out!";
+				if (rndNumber == 3) Commentary = "Some great goalkeeping by " + playerName + "!";
+				if (rndNumber == 4) Commentary = "If it wasn't for " + playerName + " that'd be in";
+			}
+			else {
+				if (rndNumber == 1) Commentary = "What a save!!";
+				if (rndNumber == 2) Commentary = "Wow! they kept that one out!";
+				if (rndNumber == 3) Commentary = "Some great goalkeeping!";
+				if (rndNumber == 4) Commentary = "That was almost in!";
+			}
+		}
+		else if (eventName == "Hat Trick") {
+			srand(getGameTime());
+			rndNumber = (rand() % 4 + 1);
+			if (playerName.length() > 1) {
+				if (rndNumber == 1) Commentary = "A hattrick by " + playerName + "!";
+				if (rndNumber == 2) Commentary = "Hattrick!! Great stuff from " + playerName;
+				if (rndNumber == 3) Commentary = playerName + " has got their hattrick!";
+				if (rndNumber == 4) Commentary = playerName + " is on fire!";
+			}
+			else {
+				if (rndNumber == 1) Commentary = "That's a hattrick!";
+				if (rndNumber == 2) Commentary = "Hattrick!!";
+				if (rndNumber == 3) Commentary = "That'll be a hattrick!";
+				if (rndNumber == 4) Commentary = "...";
+			}
+		}*/
+		else if (eventName == "Goal") {
+			srand(getGameTime());
+			rndNumber = (rand() % 5 + 1);
 			if (lastGoalScoredBy == LocalTeam123) { // Your team scored
 				//Commentary = "Goal, Your team scored, Goal Difference: " + std::to_string(GoalDifference) + " Score: " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]);
 				if (WinningTeam == LocalTeam123) { // You're winning
-					if (GoalDifference < 3) {
+					if (getGameTime() > (getMaxGameTime() - 20)) {
 						if (rndNumber == 1) Commentary = "Luck...";
 						if (rndNumber == 2) Commentary = "Meh...";
+						if (rndNumber == 3) Commentary = "This feeling of joy won't last...";
+						if (rndNumber == 4) Commentary = "Lots of time left for you to screw up";
+						if (rndNumber == 5) Commentary = "That was sh*t";
 					}
-					else if (GoalDifference > 3) { // Winning by a lot!
+					else if (getGameTime() < 10) {
+						if (rndNumber == 1) Commentary = "Well well well...";
+						if (rndNumber == 2) Commentary = "What a save!!";
+						if (rndNumber == 3) Commentary = "Luck!";
+						if (rndNumber == 4) Commentary = "If only your dad pulled out this close to the end...";
+						if (rndNumber == 5) Commentary = "FFS...";
+					}
+					else if (GoalDifference < 3) {
+						if (rndNumber == 1) Commentary = "You'll still lose this!";
+						if (rndNumber == 2) Commentary = "A goal doesn't make your parents love you";
+						if (rndNumber == 3) {
+							if (playerName.length() > 1) {
+								Commentary = "A pathetic goal by " + playerName + "!";
+							}
+							else {
+								Commentary = "Absolute crap";
+							}
+						}
+						if (rndNumber == 4) Commentary = "That was bullsh*t";
+						if (rndNumber == 5) Commentary = "Meh.. I've seen better";
+					}
+					else if (GoalDifference > 2) { // Winning by a lot!
 						if (rndNumber == 1) Commentary = "You'll find a way to ruin this lead";
 						if (rndNumber == 2) Commentary = "Don't get too comfy, we know you'll throw it away";
+						if (rndNumber == 3) Commentary = "Cccrrrraaaapppp!";
+						if (rndNumber == 4) {
+							if (playerName.length() > 1) {
+								Commentary = "A sh*te goal there from " + playerName;
+							}
+							else {
+								Commentary = "A sh*te goal";
+							}
+						}
+						if (rndNumber == 5) Commentary = "Oh look.. a goal...";
+					}
+					else if (GoalDifference > 5) { // Winning by loads!
+						Commentary = "*Slow claps*";
 					}
 				}
-				else { // You're losing
-					if (GoalDifference > 3) {
-						if (rndNumber == 1) Commentary = "You'll never catch them...";
-						if (rndNumber == 2) Commentary = "Why are you even trying?";
+				else { // You're losing / Drawing
+					if (GoalDifference > 6) { // By loads!
+						Commentary = "Really? What is the point?";
+					}
+					else if (GoalDifference > 4) { // By a lot..
+						if (rndNumber == 1) Commentary = "Wow! You really are terrible!";
+						if (rndNumber == 2) Commentary = "AH HAHAHA! Loser";
+						if (rndNumber == 3) Commentary = "WHAT A SAVE!!";
+						if (rndNumber == 4) Commentary = "You should have been aborted";
+						if (rndNumber == 5) Commentary = "Goal! They're sooo much better than you!";
+					}
+					else if (GoalDifference > 2) {
+						if (rndNumber == 1) Commentary = "Pure luck...";
+						if (rndNumber == 2) Commentary = "I believe they are going easy on you due to your 'condition'";
+						if (rndNumber == 3) Commentary = "I'm embarressed for you";
+						if (rndNumber == 4) Commentary = "FF, turn off the computer and think about your life choices";
+						if (rndNumber == 5) Commentary = "I would've saved that";
+					}
+					else if (GoalDifference == 0) { // You scored to bring it level
+						if (rndNumber == 1) Commentary = "Oh look, it's a tie";
+						if (rndNumber == 2) Commentary = "Meh... Just FF and save us all the effort";
+						if (rndNumber == 3) Commentary = "Ppfftt.. easy goal";
+						if (rndNumber == 4) Commentary = "What sh*t defending!";
+						if (rndNumber == 5) Commentary = "Don't get too comfy...";
 					}
 				}
 			}
 			else { // Oppenent scored
-				//Commentary = "Goal, They scored, Goal Difference: " + std::to_string(GoalDifference) + " Score: " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]);
+			 //Commentary = "Goal, They scored, Goal Difference: " + std::to_string(GoalDifference) + " Score: " + std::to_string(TeamScore[1]) + "|" + std::to_string(TeamScore[2]);
 				if (WinningTeam == LocalTeam123) {  // You're still winning though!
-					if (GoalDifference < 1) {
-						if (rndNumber == 1) Commentary = "Loser!";
-						if (rndNumber == 2) Commentary = "You're throwing it all away";
+					if (GoalDifference < 3) {
+						if (rndNumber == 1) Commentary = "What an easy goal...";
+						if (rndNumber == 2) Commentary = "They're gonna comeback!";
+						if (rndNumber == 3) Commentary = "You didn't save it? f*cking idiot!";
+						if (rndNumber == 4) Commentary = "It's all falling apart, just like your life";
+						if (rndNumber == 5) Commentary = "What sh*t defending!";
 					}
-					else if (GoalDifference > 3) {
-						if (rndNumber == 1) Commentary = "Don't get too comfy...";
-						if (rndNumber == 2) Commentary = "Cmon.. stop sucking";
+					else if (GoalDifference > 2) {
+						if (rndNumber == 1) Commentary = "We all know you should have saved that";
+						if (rndNumber == 2) Commentary = "Haha! Look at them go!";
+						if (rndNumber == 3) Commentary = "GGOOOAAAALLLL!!!";
+						if (rndNumber == 4) Commentary = "Here is the comeback!";
+						if (rndNumber == 5) Commentary = "You're choking!";
 					}
 				}
 				else { // You're losing...
-					if (GoalDifference > 3) { // By a lot!
-						if (rndNumber == 1) Commentary = "I'm embarressed for you";
-						if (rndNumber == 2) Commentary = "Go ahead, FF, turn off the computer and think about your life choices";
+					if (getGameTime() > (getMaxGameTime() - 20)) {
+						Commentary = "HAHAHA! What a start... you loser!";
+					}
+					else if (GoalDifference > 3) { // By a lot!
+						if (rndNumber == 1) Commentary = "Wow! You really are terrible!";
+						if (rndNumber == 2) Commentary = "AH HAHAHA! Loser";
+						if (rndNumber == 3) Commentary = "Goal! They're sooo much better than you!";
+						if (rndNumber == 4) Commentary = "Gooaall!! Look how good they are!";
+						if (rndNumber == 5) {
+							if (playerName.length() > 1) {
+								Commentary = "Why are you not more like " + playerName + "?";
+							}
+							else {
+								Commentary = "See idiot? that's how you score a goal...";
+							}
+						}
+					}
+					else if (GoalDifference > 1) {
+						if (rndNumber == 1) Commentary = "Loser!";
+						if (rndNumber == 2) Commentary = "Yeeeesssss!!!";
+						if (rndNumber == 3) Commentary = "GGOOOAAAALLLLL!!!";
+						if (rndNumber == 4) {
+							if (playerName.length() > 1) {
+								Commentary = "Beautiful goal by " + playerName + "!";
+							}
+							else {
+								Commentary = "Beautiful!";
+							}
+						}
+						if (rndNumber == 5) Commentary = "hahaha look at them go!";
+					}
+					else if (GoalDifference == 0) { // You scored to bring it level
+						if (rndNumber == 1) Commentary = "OMG You idiot they're now level!";
+						if (rndNumber == 2) Commentary = "You have no chance of winning this... or happiness...";
+						if (rndNumber == 3) Commentary = "Yeeesss!! It's neck and neck!";
+						if (rndNumber == 4) Commentary = "It's times like this I bet you wished your parents loved you";
+						if (rndNumber == 5) Commentary = "I've never seen such poor defending...";
 					}
 				}
 			}
 		}
 		//cvarManager->log(Commentary);
-		//if (eventName == "GameUpdated") Commentary = "Debug: getGameTime=" + std::to_string(tmpCount++);
 
-		if (isOvertime) { //TODO: Add # of shots for each team , super handy to see during Overtime in a tournament!
-			if (isFavourite == true) Commentary = "The pressure will break you";
-			if (isFavourite == false) Commentary = "Why bother trying? we both know you'll lose.";
-		}
+
 	}
 	else {
 		Commentary = "";
