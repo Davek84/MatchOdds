@@ -7,7 +7,7 @@
 
 #define LINMATH_H
 
-BAKKESMOD_PLUGIN(matchodds, "Shows win percentages + commentary throughout the game.", "1.8", 0x0);
+BAKKESMOD_PLUGIN(matchodds, "Shows win percentages + commentary throughout the game.", "1.8.2", 0x0);
 // ============================================================================
 // MatchOdds
 // by Civilian360
@@ -48,7 +48,8 @@ void matchodds::onLoad()
 	cvarManager->registerCvar("cl_percentage_textscale", "190", "Text Scale", true, true, 0, true, 300).bindTo(cl_percentage_textscale);
 	cl_dice_imagescale = std::make_shared<int>(50);
 	cvarManager->registerCvar("cl_dice_imagescale", "50", "Image Scale", true, true, 0, true, 100).bindTo(cl_dice_imagescale);
-
+	cl_dice_visible = std::make_shared<bool>(true);
+	cvarManager->registerCvar("cl_dice_visible", "1", "Dice Image Visible?", true, true, 0, true, 1).bindTo(cl_dice_visible);
 
 	cl_commentarytype = std::make_shared<std::string>("default");
 	cvarManager->registerCvar("cl_commentarytype", "default", "Toxic Commentary?", false, false, 0, false, 0, true).bindTo(cl_commentarytype);
@@ -85,6 +86,9 @@ void matchodds::onLoad()
 	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.EventOvertimeUpdated", std::bind(&matchodds::itsOvertime, this, std::placeholders::_1));
 
 	gameWrapper->HookEvent("Function TAGame.CrowdSoundManager_TA.Tick", std::bind(&matchodds::GameUpdated, this, std::placeholders::_1));
+
+    
+
 }
 // The structure of a ticker stat event
 struct TickerStruct {
@@ -696,7 +700,7 @@ void::matchodds::GetToxicCommentary(std::string eventName, std::string playerNam
 					}
 					else if (getGameTime() < 10) {
 						if (rndNumber == 1) Commentary = "Well well well...";
-						if (rndNumber == 2) Commentary = "What a save!!";
+						if (rndNumber == 2) Commentary = "I feel the other team took pity on you...";
 						if (rndNumber == 3) Commentary = "Luck!";
 						if (rndNumber == 4) Commentary = "If only your dad pulled out this close to the end...";
 						if (rndNumber == 5) Commentary = "FFS...";
@@ -775,7 +779,7 @@ void::matchodds::GetToxicCommentary(std::string eventName, std::string playerNam
 						if (rndNumber == 2) Commentary = "Haha! Look at them go!";
 						if (rndNumber == 3) Commentary = "GGOOOAAAALLLL!!!";
 						if (rndNumber == 4) Commentary = "Here is the comeback!";
-						if (rndNumber == 5) Commentary = "You're choking!";
+						if (rndNumber == 5) Commentary = "You're choking! Like your mom does on a Friday night!";
 					}
 				}
 				else { // You're losing...
@@ -968,6 +972,7 @@ void matchodds::RoundEnded(std::string eventName) { // Triggered after a goal is
 }
 void matchodds::MatchStarted(std::string eventName) { // Triggered at the very start?
 	Commentary = "";
+	cvarManager->getCvar("ranked_showranks").setValue(1);
 	if (gameWrapper->IsInReplay()) return;
 	isMatchEnded = false;
 	MatchState = s_PreMatch;
@@ -1236,12 +1241,14 @@ void matchodds::Render(CanvasWrapper canvas)
 		if (TeamBaselineMMR[1] == 1) return;
 		if (TeamBaselineMMR[2] == 1) return;
 		//if (StarPlayerName == "") return; //Only render if we have some MMR data
-		//if (getGameTime() >= getMaxGameTime())  return; // Hotfix: Don't display inaccurate data at the very start of games (if you play multiple games in a row things get messed up...)
+		if (getGameTime() >= getMaxGameTime())  return; // Hotfix: Don't display inaccurate data at the very start of games (if you play multiple games in a row things get messed up...)
 		int ScreenY = gameWrapper->GetScreenSize().Y;
+		int ScreenX = gameWrapper->GetScreenSize().X;
 		float CommentatorImageScale;
 		float DiceImageScale;
 		int YScale = 0;
 		int XScale = 0;
+		int ResolutionOffetX = 0;
 		if (ScreenY <= 1000) {
 			CommentatorImageScale = ((*cl_commentator_imagescale - 100) * 0.001);
 			DiceImageScale = ((*cl_dice_imagescale - 100) * 0.001);
@@ -1255,6 +1262,19 @@ void matchodds::Render(CanvasWrapper canvas)
 			}
 			
 			
+		}
+		else if (ScreenX >= 3000) { // 4k Resolutions
+			CommentatorImageScale = ((*cl_commentator_imagescale + 1) * 0.001);
+			DiceImageScale = ((*cl_dice_imagescale + 1) * 0.001);
+			if (*cl_percentage_override) {
+				XScale = 100 + *cl_percentageoffset_x;
+				YScale = 10 + *cl_percentageoffset_y;
+				ResolutionOffetX = 250;
+			}
+			else {
+				XScale = 100;
+				YScale = 10;
+			}
 		}
 		else if (ScreenY >= 1399) {
 			CommentatorImageScale = ((*cl_commentator_imagescale + 100) * 0.001);
@@ -1294,17 +1314,17 @@ void matchodds::Render(CanvasWrapper canvas)
 			else {
 				//int ScreenWidthX = gameWrapper->GetScreenSize().X;
 
-				Vector2 imagePosTeam0 = { (canvas.GetSize().X / 2) - (320 + XScale), 15 + YScale }; // Position for the 'dice' image next to the scoreboard
-				Vector2 imagePosTeam1 = { (canvas.GetSize().X / 2) + (260 + XScale), 15 + YScale };
+				Vector2 imagePosTeam0 = { (canvas.GetSize().X / 2) - (320 + XScale + ResolutionOffetX), 15 + YScale }; // Position for the 'dice' image next to the scoreboard
+				Vector2 imagePosTeam1 = { (canvas.GetSize().X / 2) + (260 + XScale + ResolutionOffetX), 15 + YScale };
 
-				Vector2 starPosTeam0 = { (canvas.GetSize().X / 2) - (340 + XScale), 15 + YScale }; // Position for the 'star' image next to the %
-				Vector2 starPosTeam1 = { (canvas.GetSize().X / 2) + (320 + XScale), 15 + YScale };
+				Vector2 starPosTeam0 = { (canvas.GetSize().X / 2) - (340 + XScale + ResolutionOffetX), 15 + YScale }; // Position for the 'star' image next to the %
+				Vector2 starPosTeam1 = { (canvas.GetSize().X / 2) + (320 + XScale + ResolutionOffetX), 15 + YScale };
 
 				Vector2 textPosTeam0 = { (canvas.GetSize().X / 2) - (250 + XScale), 30 + YScale }; // Position for the '%' figure next to the scoreboard
 				Vector2 textPosTeam1 = { (canvas.GetSize().X / 2) + (200 + XScale), 30 + YScale };
 
 				canvas.SetPosition(imagePosTeam0);
-				canvas.DrawTexture(dice.get(), DiceImageScale); // Draw the 'dice' image to the screen
+				if (*cl_dice_visible) canvas.DrawTexture(dice.get(), DiceImageScale); // Draw the 'dice' image to the screen
 				canvas.SetPosition(textPosTeam0);
 
 				if (LocalTeam123 == 1)
@@ -1317,7 +1337,7 @@ void matchodds::Render(CanvasWrapper canvas)
 				canvas.DrawString(std::to_string(tmpPercentage2) + "%", tmpPercFontSize, tmpPercFontSize, 0); // Draw the %
 
 				canvas.SetPosition(imagePosTeam1);
-				canvas.DrawTexture(dice.get(), DiceImageScale);
+				if (*cl_dice_visible) canvas.DrawTexture(dice.get(), DiceImageScale);
 				canvas.SetPosition(textPosTeam1);
 
 				if (LocalTeam123 == 1)

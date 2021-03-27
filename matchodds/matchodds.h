@@ -22,6 +22,7 @@ private:
 	std::shared_ptr<int> cl_percentageoffset_y;
 	std::shared_ptr<int> cl_percentage_textscale;
 	std::shared_ptr<int> cl_dice_imagescale;
+	std::shared_ptr<bool> cl_dice_visible;
 	std::shared_ptr<std::string> cl_commentarytype;
 
 	int rndNumber = 1;
